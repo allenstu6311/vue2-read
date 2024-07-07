@@ -1,3 +1,4 @@
+import Watcher from "../../core/observer/watcher";
 export class EffectScope {
   /**
    * @internal
@@ -7,9 +8,9 @@ export class EffectScope {
   /**
    * @internal
    */
-  effects: any[] = [];
+  effects: Watcher[] = [];
   /**
    * @internal
    */
-  cleanups: (() => void)[] = []
+  cleanups: (() => void)[] = [];
 }
