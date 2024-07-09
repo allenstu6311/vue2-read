@@ -3,7 +3,7 @@ import { initMixin } from "./init.js";
 
 function Vue(options: any) {
   this._init(options);
-  console.log("test");
+  // console.log("test");
 }
 
 initMixin(Vue);
