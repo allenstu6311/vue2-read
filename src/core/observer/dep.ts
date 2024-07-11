@@ -67,3 +67,13 @@ export default class Dep {
 
 Dep.target = null;
 const targetStack: Array<DepTarget | null | undefined> = [];
+
+export function pushTarget(target?: DepTarget | null) {
+  targetStack.push(target);
+  Dep.target = target;
+}
+
+export function popTarget() {
+  targetStack.pop();
+  Dep.target = targetStack[targetStack.length - 1];
+}

@@ -1,10 +1,11 @@
-import Dep, { DepTarget } from "./dep";
+import Dep, { DepTarget, pushTarget, popTarget } from "./dep";
 import type { SimpleSet } from "../util";
 import { DebuggerEvent, DebuggerOptions } from "../../v3";
 import {
   activeEffectScope,
   recordEffectScope,
 } from "../../v3/reactivity/effectScope";
+import { isFunction, parsePath } from "../util/index.js";
 
 /**
  * @internal
@@ -26,7 +27,7 @@ let uid = 0;
  */
 export default class Watcher implements DepTarget {
   vm?: any; // Vue實體
-  expression: string; //調適資料變更的訊息
+  expression: string; //觀察表達式的字串表示形式(watche中可能會有多層物件)
   cb: Function; //數據變化時調用的callback
   id: number;
   deep: boolean; //是否深度觀察
@@ -69,8 +70,55 @@ export default class Watcher implements DepTarget {
     if ((this.vm = vm) && isRenderWatcher) {
       vm._watcher = this;
     }
+    if (options) {
+      this.deep = !!options.deep;
+      this.user = !!options.user;
+      this.lazy = !!options.lazy;
+      this.sync = !!options.sync;
+      this.before = options.before;
+      this.onTrack = options.onTrack;
+      this.onTrigger = options.onTrigger;
+    } else {
+      this.deep = this.user = this.lazy = this.sync = false;
+    }
+    this.cb = cb;
     this.id = ++uid;
+    this.active = true;
+    this.post = false;
+    this.dirty = this.lazy; // for lazy watchers
+    this.deps = [];
+    this.newDeps = [];
+    this.depIds = new Set();
+    this.newDepIds = new Set();
+    this.expression = expOrFn.toString();
+
+    if (isFunction(expOrFn)) {
+      this.getter = expOrFn;
+    } else {
+      this.getter = parsePath(expOrFn);
+    }
   }
+  /**
+   * 評估 getter，並重新收集依賴項。
+   */
+  get() {
+    pushTarget(this);
+    let value;
+    const vm = this.vm;
+
+    try {
+      value = this.getter.call(vm, vm);
+    } catch (e) {
+      if (this.user) {
+      } else throw e;
+    } finally {
+      // 如果是深度監聽，則遞歸地觸摸每個屬性，觸發它們的 getter
+      if (this.deep) {
+      }
+      popTarget();
+    }
+  }
+
   addDep() {}
   update() {}
 }
