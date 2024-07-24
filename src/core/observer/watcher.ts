@@ -107,18 +107,30 @@ export default class Watcher implements DepTarget {
     const vm = this.vm;
 
     try {
+      //.call(第一個是執行環境，第二個是funcion的參數)
       value = this.getter.call(vm, vm);
     } catch (e) {
       if (this.user) {
       } else throw e;
     } finally {
       // 如果是深度監聽，則遞歸地觸摸每個屬性，觸發它們的 getter
-      if (this.deep) {
-      }
+      // if (this.deep) {
+      //   traverse(value)
+      // }
       popTarget();
+      this.cleanupDeps();
     }
+    return value;
   }
 
   addDep() {}
+  /**
+   * 清理依賴項目的蒐集
+   */
+  cleanupDeps() {}
   update() {}
+  run() {}
+  evaluate() {}
+  depend() {}
+  teardown() {}
 }

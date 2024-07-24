@@ -8,7 +8,9 @@ export interface DepTarget extends DebuggerOptions {
   update(): void;
 }
 
-//管理依賴關係和通知依賴變化
+/**
+ * 管理依賴關係和通知依賴變化
+ */
 export default class Dep {
   static target?: DepTarget | null; //儲存目前正在被依賴收集的目標(它是一個靜態屬性，意味著它是類別層級的共享屬性)
   id: number;

@@ -16,9 +16,38 @@ export class EffectScope {
    */
   cleanups: (() => void)[] = [];
   /**
-   *
+   * @internal
+   */
+  parent: EffectScope | undefined;
+  /**
+   * @internal
+   */
+  scopes: EffectScope[] | undefined;
+  /**
+   * 實體
    */
   _vm?: boolean;
+  /**
+   * 追蹤子作用域在其父作用域數組中的索引以優化刪除
+   */
+  private index: number | undefined;
+
+  constructor(public datached = false) {
+    this.parent = activeEffectScope;
+    if (!datached && activeEffectScope) {
+      //記錄該實體在父層的位置
+      if (!activeEffectScope.scopes) {
+        activeEffectScope.scopes = [];
+      }
+      activeEffectScope.scopes.push(this);
+      this.index = activeEffectScope.scopes.length - 1;
+    }
+  }
+
+  run<T>() {}
+  on() {}
+  off() {}
+  stop(fromParent?: boolean) {}
 }
 
 /**
