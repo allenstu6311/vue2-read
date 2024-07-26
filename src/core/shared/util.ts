@@ -62,3 +62,19 @@ export function hasChanged(x: unknown, y: unknown): boolean {
   if (x === y) return x === 0 && 1 / x !== 1 / (y as number);
   return x === x || y === y;
 }
+
+/**
+ * 不執行任何操作，滿足某些需要函數但實際上不會被調用的情況，
+ * 避免 undefined 錯誤或其他潛在的問題
+ */
+export function noop(a?: any, b?: any, c?: any) {}
+
+/**
+ * Always return false.
+ */
+export const no = (a?: any, b?: any, c?: any) => false;
+
+/**
+ * Return the same value.
+ */
+export const identity = (_: any) => _;

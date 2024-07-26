@@ -3,6 +3,7 @@ import { camelize, hasOwn } from "../shared/util.js";
 import config from "../config.js";
 import { hasSymbol } from "./env.js";
 import { set } from "../observer/index.js";
+import { ComponentOptions } from "../../types/options.js";
 
 const strats = config.optionMergeStrategies;
 
@@ -95,7 +96,7 @@ function normalizeDirectives(options: Record<string, any>) {
   if (dirs) {
     for (const key in dirs) {
       const def = dirs[key];
-      console.log("normalizeDirectives", def);
+      // console.log("normalizeDirectives", def);
       if (isFunction(def)) {
         dirs[key] = { bind: def, update: def };
       }
@@ -111,7 +112,7 @@ export function mergeOptions(
   parent: Record<string, any>,
   child: Record<string, any>,
   vm: any
-) {
+): ComponentOptions {
   if (isFunction(child)) {
     // @ts-expect-error
     child = child.options;
@@ -132,4 +133,5 @@ export function mergeOptions(
   function mergeField(key: any) {
     // const state = sta;
   }
+  return options;
 }

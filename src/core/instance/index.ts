@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { initMixin } from "./init.js";
 import { stateMixin } from "./state.js";
+import { GlobalAPI } from "../../types/global-api.js";
 
 function Vue(options: any) {
   this._init(options);
@@ -9,22 +10,7 @@ function Vue(options: any) {
 initMixin(Vue);
 stateMixin(Vue);
 
-// class student {
-//   static id: number;
-//   name: string;
-//   score: number;
-
-//   constructor(name, score) {
-//     // this.id = id;
-//     this.name = name;
-//     this.score = score;
-//   }
-// }
-// student.id = 1;
-// const allen = new student("allen", 70);
-
-// console.log("student", student);
-// console.log("allen", allen);
+export default Vue as unknown as GlobalAPI;
 
 const app = new Vue({
   props: {
@@ -48,5 +34,3 @@ const app = new Vue({
     // console.log(this);
   },
 });
-
-export default Vue;
