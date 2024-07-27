@@ -1,6 +1,6 @@
-import { LIFECYCLE_HOOKS } from "./shared/constants";
-import { Component } from "../types/component";
-import { no, noop, identity } from "./util";
+import { LIFECYCLE_HOOKS } from "./shared/constants.js";
+import { Component } from "../types/component.js";
+import { no, noop, identity } from "./util/index.js";
 
 export interface Config {
   //定義合併選項的策略函數。當你自定義 Vue 組件選項時，這些策略會告訴 Vue 如何合併這些選項。

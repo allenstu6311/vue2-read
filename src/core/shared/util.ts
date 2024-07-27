@@ -67,7 +67,7 @@ export function hasChanged(x: unknown, y: unknown): boolean {
  * 不執行任何操作，滿足某些需要函數但實際上不會被調用的情況，
  * 避免 undefined 錯誤或其他潛在的問題
  */
-export function noop(a?: any, b?: any, c?: any) {}
+export function noop(a?: any, b?: any, c?: any) { }
 
 /**
  * Always return false.
@@ -78,3 +78,17 @@ export const no = (a?: any, b?: any, c?: any) => false;
  * Return the same value.
  */
 export const identity = (_: any) => _;
+
+
+/**
+ * Mix properties into target object.
+ */
+export function extend(
+  to: Record<PropertyKey, any>,
+  _from?: Record<PropertyKey, any>,
+): Record<PropertyKey, any> {
+  for (const key in _from) {
+    to[key] = _from[key];
+  }
+  return to
+}

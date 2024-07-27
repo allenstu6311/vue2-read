@@ -128,7 +128,7 @@ export function set(
 
   //如果是vue實例對象不允許添加屬性
   if ((target as any).isVue || (ob && ob.vmCount)) {
-    console.error("不允許再Vue實體添加屬性");
+    console.warn("不允許再Vue實體添加屬性");
     return val;
   }
 

@@ -1,9 +1,10 @@
-import { isFunction, isArray, isPlainObject } from "../shared/util.js";
+import { isFunction, isArray, isPlainObject, extend } from "../shared/util.js";
 import { camelize, hasOwn } from "../shared/util.js";
 import config from "../config.js";
-import { hasSymbol } from "./env.js";
+import { hasSymbol, nativeWatch } from "./env.js";
 import { set } from "../observer/index.js";
 import { ComponentOptions } from "../../types/options.js";
+import { Component } from "../../types/component.js";
 
 const strats = config.optionMergeStrategies;
 
@@ -22,6 +23,8 @@ strats.el = strats.propsData = function (
 const defaultStrat = function (parentVal: any, childVal: any): any {
   return childVal === undefined ? parentVal : childVal;
 };
+
+
 
 /**
  *
@@ -56,6 +59,116 @@ function mergeData(
   }
   return to;
 }
+
+/**
+ * 合併所有的data欄位
+ */
+function mergeDataOrFn(
+  parentVal: any, //mixin
+  childVal: any, //vm
+  vm?: Component
+): Function | null {
+  if (!vm) {
+    if (!childVal) return parentVal;
+    if (!parentVal) return childVal;
+
+    //如果同時有parentVal && childVal
+    return function mergedDataFn(this: any) {
+      return mergeData(
+        isFunction(childVal) ? childVal.call(this, this) : childVal,
+        isFunction(parentVal) ? parentVal.call(this, this) : parentVal
+      )
+    }
+  } else {
+    return function mergedInstanceDataFn() {
+      const instanceData = isFunction(childVal) ? childVal.call(vm, vm) : childVal
+      const defaultData = isFunction(parentVal) ? parentVal.call(vm, vm) : parentVal
+      if (instanceData) {
+        return mergeData(instanceData, defaultData);
+      }
+      return defaultData;
+    }
+  }
+}
+
+/**
+ * merge watch
+ */
+strats.watch = function (
+  parentVal: Record<string, any> | null,
+  childVal: Record<string, any> | null,
+  vm: Component | null,
+  key: string
+): Object | null {
+  //@ts-expect-error work around
+  if (parentVal === nativeWatch) parentVal = undefined;
+  //@ts-expect-error work around
+  if (childVal === nativeWatch) childVal = undefined;
+
+  if (!childVal) return Object.create(parentVal || null);
+  assertObjectType(key, childVal, vm)
+  if (!parentVal) return childVal
+
+  /**
+   * 如果合併的資料中有watch同個資料要避免覆蓋，因為到時資料變更同樣要觸發兩邊德watch
+   * {
+   *    test:[test(),test()]
+   *    test2:[test()]
+   * }
+   */
+  const ret: Record<string, any> = {}
+  extend(ret, parentVal);
+  for (const key in childVal) { 
+    let parent = ret[key];
+    const child = childVal[key]
+    if(parent && !isArray(parent)){
+      parent[parent];
+    }
+    ret[key] = parent ? parent.concat(child) : isArray(child) ? child : [child]
+  }
+  return ret;
+}
+
+/**
+ * data merge
+ */
+strats.data = function (
+  parentVal: any,
+  childVal: any,
+  vm?: Component
+): Function | null {
+  if (!vm) {
+    if (childVal && typeof childVal !== 'function') {
+      return parentVal
+    }
+    return mergeDataOrFn(parentVal, childVal)
+
+  }
+  return mergeDataOrFn(parentVal, childVal, vm)
+}
+
+/**
+ * other merge
+ */
+strats.props =
+  strats.methods =
+  strats.computed =
+  function (
+    parentVal: Object | null | any,
+    childVal: Object | null,
+    vm: Component | null,
+    key: string
+  ): Object | null {
+
+    if (childVal) {
+      assertObjectType(key, childVal, vm);
+      if (!parentVal) return childVal;
+    }
+    const ret = Object.create(parentVal || null);
+    extend(ret, parentVal);
+    if (childVal) extend(ret, childVal);
+    return ret
+  }
 
 /**
  * 確保所有 props 選項語法都標準化為物件格式
@@ -105,6 +218,15 @@ function normalizeDirectives(options: Record<string, any>) {
 }
 
 /**
+ * 檢查是否為物件並顯示更具體的錯誤訊息
+ */
+function assertObjectType(name: string, value: any, vm: Component | null) {
+  if (!isPlainObject(value)) {
+    console.warn(`Invalid value for option "${name}": expected an Object`)
+  }
+}
+
+/**
  * 將兩個選項物件合併為一個新選項物件，
  * 用於實例化和繼承的核心實用程式
  */
@@ -124,14 +246,24 @@ export function mergeOptions(
   const options: any = {} as any;
   let key;
 
-  for (key in child) {
-    if (hasOwn(parent, key)) {
-    }
-    // console.log("key", key);
+  for (key in parent) {
+    mergeField(key)
   }
 
+  for (key in child) {
+    if (!hasOwn(parent, key)) {
+      mergeField(key)
+    }
+  }
+
+
+
   function mergeField(key: any) {
-    // const state = sta;
+    const strat = strats[key] || defaultStrat
+    // console.log('key',key)
+    // console.log('child',child[key])
+
+    options[key] = strat(parent[key], child[key], vm, key)
   }
   return options;
 }

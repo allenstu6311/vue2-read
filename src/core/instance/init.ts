@@ -17,18 +17,15 @@ export function initMixin(Vue: any) {
     if (options && options._isComponent) {
       //暫時不會走到這裡
     } else {
-      // alert(2);
-      console.log("constructor", vm.constructor);
+      //合併options中所有欄位(data,computed,watch....)
       vm.$options = mergeOptions(
-        // resolveConstructorOptions(vm.constructor as any),
-        {},
+        resolveConstructorOptions(vm.constructor as any),
         options,
         vm
       );
-      // vm.$options = {};
     }
 
-    // console.log(vm);
+    console.log(vm);
   };
 }
 

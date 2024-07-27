@@ -2,6 +2,7 @@
 import { initMixin } from "./init.js";
 import { stateMixin } from "./state.js";
 import { GlobalAPI } from "../../types/global-api.js";
+import { initGlobalAPI } from "../global-api/index.js";
 
 function Vue(options: any) {
   this._init(options);
@@ -9,6 +10,7 @@ function Vue(options: any) {
 
 initMixin(Vue);
 stateMixin(Vue);
+initGlobalAPI(Vue)
 
 export default Vue as unknown as GlobalAPI;
 
@@ -27,9 +29,16 @@ const app = new Vue({
     },
   },
   data() {
-    return {};
+    return {
+      test:1
+    };
   },
-  methods: {},
+  methods: {
+    test(){}
+  },
+  watch:{
+    test(){}
+  },
   mounted() {
     // console.log(this);
   },

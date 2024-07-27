@@ -4,6 +4,10 @@ export interface SimpleSet {
   clear(): void;
 }
 
+// Firefox has a "watch" function on Object.prototype...
+// @ts-expect-error firebox support
+export const nativeWatch = {}.watch
+
 /**
  * 檢查函數是否為原生(通常原生js函數轉換成字串會包含"native code"的字樣)
  * @param Ctor
