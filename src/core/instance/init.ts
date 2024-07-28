@@ -1,6 +1,9 @@
 import { EffectScope } from "../../v3/reactivity/effectScope.js";
 import { mergeOptions } from "../util/options.js";
 import type { Component } from "../../types/component.js";
+import { initLifecycle } from "./lifecycle.js";
+import { initEvents } from "./events.js";
+import { initRender } from "./render.js";
 
 let uid = 0;
 
@@ -15,7 +18,7 @@ export function initMixin(Vue: any) {
     vm._scope.parent = undefined;
 
     if (options && options._isComponent) {
-      //暫時不會走到這裡
+      //使用component的時候才會觸發暫時不處理
     } else {
       //合併options中所有欄位(data,computed,watch....)
       vm.$options = mergeOptions(
@@ -26,6 +29,16 @@ export function initMixin(Vue: any) {
     }
 
     console.log(vm);
+    vm._renderProxy = vm; // 之後考慮用proxy
+    vm._self = vm;
+
+    
+ 
+
+    initLifecycle(vm);
+    initEvents(vm);
+    initRender(vm);
+
   };
 }
 

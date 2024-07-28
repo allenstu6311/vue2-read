@@ -5,6 +5,7 @@ import { hasSymbol, nativeWatch } from "./env.js";
 import { set } from "../observer/index.js";
 import { ComponentOptions } from "../../types/options.js";
 import { Component } from "../../types/component.js";
+import { ASSET_TYPES } from "../shared/constants.js";
 
 const strats = config.optionMergeStrategies;
 
@@ -92,6 +93,27 @@ function mergeDataOrFn(
 }
 
 /**
+ * 合併component, directive", filter
+ */
+function mergeAssets(
+  parentVal: Object | null,
+  childVal: Object | null,
+  vm: Component | null,
+  key: string
+): Object {
+  const res = Object.create(parentVal || null);
+  if (childVal) {
+    assertObjectType(key, childVal, vm);
+    return extend(res, childVal);
+  }
+  return res
+}
+
+ASSET_TYPES.forEach(type => {
+  strats[type + 's'] = mergeAssets
+});
+
+/**
  * merge watch
  */
 strats.watch = function (
@@ -118,10 +140,10 @@ strats.watch = function (
    */
   const ret: Record<string, any> = {}
   extend(ret, parentVal);
-  for (const key in childVal) { 
+  for (const key in childVal) {
     let parent = ret[key];
     const child = childVal[key]
-    if(parent && !isArray(parent)){
+    if (parent && !isArray(parent)) {
       parent[parent];
     }
     ret[key] = parent ? parent.concat(child) : isArray(child) ? child : [child]

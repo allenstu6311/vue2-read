@@ -92,3 +92,26 @@ export function extend(
   }
   return to
 }
+
+/**
+ * 檢查是否為原始值
+ */
+export function isPrimitive(value:any): boolean{
+  return (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'symbol' ||
+    typeof value === 'boolean'
+  )
+}
+
+export function isTrue(v: any): boolean {
+  return v === true
+}
+
+/**
+ * 检查给定的值是否被定义(isDefined)
+ */
+export function isDef<T>(v: T): v is NonNullable<T> {
+  return v !== undefined && v !== null
+}

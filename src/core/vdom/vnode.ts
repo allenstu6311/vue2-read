@@ -67,3 +67,13 @@ export default class VNode {
     this.isAsyncPlaceholder = false;
   }
 }
+
+/**
+ * 創建虛擬DOM 
+ */
+export const createEmptyVNode = (text: string = '') => {
+  const node = new VNode();
+  node.text = text;
+  node.isComment = true;
+  return node
+}

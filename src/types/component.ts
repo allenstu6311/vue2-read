@@ -128,7 +128,7 @@ export declare class Component {
     data?: VNodeData,
     children?: VNodeChildren,
     normalizationType?: number
-  ) => VNode | void;
+  ) => VNode | void | VNode[];
 
   // renderStatic
   _m: (index: number, isInFor?: boolean) => VNode | VNodeChildren;
