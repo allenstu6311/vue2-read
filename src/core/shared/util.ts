@@ -18,7 +18,15 @@ export function isFunction(value: any): value is (...args: any[]) => any {
 }
 
 /**
- * 嚴格的物件類型檢查
+ * 檢查是否為物件
+ */
+export function isObject(obj: any): boolean {
+  return obj !== null && typeof obj === "object";
+}
+
+/**
+ * 檢查傳入的變量是否為「純物件」，例:new Object()，確保
+ * 不是由自定義的函數制作
  */
 export function isPlainObject(obj: any): boolean {
   return _toString.call(obj) === "[object Object]";
@@ -67,7 +75,7 @@ export function hasChanged(x: unknown, y: unknown): boolean {
  * 不執行任何操作，滿足某些需要函數但實際上不會被調用的情況，
  * 避免 undefined 錯誤或其他潛在的問題
  */
-export function noop(a?: any, b?: any, c?: any) { }
+export function noop(a?: any, b?: any, c?: any) {}
 
 /**
  * Always return false.
@@ -79,39 +87,56 @@ export const no = (a?: any, b?: any, c?: any) => false;
  */
 export const identity = (_: any) => _;
 
-
 /**
  * Mix properties into target object.
  */
 export function extend(
   to: Record<PropertyKey, any>,
-  _from?: Record<PropertyKey, any>,
+  _from?: Record<PropertyKey, any>
 ): Record<PropertyKey, any> {
   for (const key in _from) {
     to[key] = _from[key];
   }
-  return to
+  return to;
 }
 
 /**
  * 檢查是否為原始值
  */
-export function isPrimitive(value:any): boolean{
+export function isPrimitive(value: any): boolean {
   return (
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'symbol' ||
-    typeof value === 'boolean'
-  )
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "symbol" ||
+    typeof value === "boolean"
+  );
 }
 
 export function isTrue(v: any): boolean {
-  return v === true
+  return v === true;
 }
 
 /**
  * 检查给定的值是否被定义(isDefined)
  */
 export function isDef<T>(v: T): v is NonNullable<T> {
-  return v !== undefined && v !== null
+  return v !== undefined && v !== null;
+}
+
+/**
+ * 製作一個hashMap來檢查標籤
+ */
+export function makeMap(
+  str: string,
+  expectsLowerCase?: boolean
+): (key: string) => true | undefined {
+  const map = Object.create(null);
+  const list: Array<string> = str.split(",");
+
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true;
+  }
+  return expectsLowerCase
+    ? (val) => map[val.toLocaleLowerCase()]
+    : (val) => map[val];
 }

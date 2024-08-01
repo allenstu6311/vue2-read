@@ -4,6 +4,11 @@ import type { Component } from "../../types/component.js";
 import { initLifecycle } from "./lifecycle.js";
 import { initEvents } from "./events.js";
 import { initRender } from "./render.js";
+import {
+  getTagNamespace,
+  isReservedTag,
+} from "../../platforms/web/util/element.js";
+import Vue from "./index.js";
 
 let uid = 0;
 
@@ -32,13 +37,12 @@ export function initMixin(Vue: any) {
     vm._renderProxy = vm; // 之後考慮用proxy
     vm._self = vm;
 
-    
- 
+    Vue.config.isReservedTag = isReservedTag;
+    Vue.config.getTagNamespace = getTagNamespace;
 
     initLifecycle(vm);
     initEvents(vm);
     initRender(vm);
-
   };
 }
 

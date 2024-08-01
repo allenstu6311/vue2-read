@@ -16,7 +16,7 @@ export interface Config {
   keyCodes: { [key: string]: number | Array<number> };
 
   // platform
-  isReservedTag: (x: string) => boolean | undefined;
+  isReservedTag: (x: string) => boolean | undefined | any;
   isReservedAttr: (x: string) => true | undefined;
   parsePlatformTagName: (x: string) => string;
   isUnknownElement: (x: string) => boolean;

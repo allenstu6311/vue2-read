@@ -1,5 +1,5 @@
 import Dep, { DepTarget, pushTarget, popTarget } from "./dep";
-import type { SimpleSet } from "../util";
+import type { SimpleSet } from "../util/index.js";
 import { DebuggerEvent, DebuggerOptions } from "../../v3";
 import {
   activeEffectScope,
