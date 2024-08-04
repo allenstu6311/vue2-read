@@ -30,7 +30,7 @@ export function initMount(Vue: any) {
           return this;
         }
       } else if (el) {
-        console.log(el);
+        // console.log(el);
         // @ts-expect-error
         template = getOuterHTML(el);
       }
@@ -41,8 +41,8 @@ export function initMount(Vue: any) {
           template,
           {
             outputSourceRange: true,
-            shouldDecodeNewlines: true,
-            shouldDecodeNewlinesForHref: true,
+            shouldDecodeNewlines: false,
+            shouldDecodeNewlinesForHref: false,
             delimiters: options.delimiters,
             comments: options.comments,
           },

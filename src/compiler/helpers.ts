@@ -12,16 +12,11 @@ export function pluckModuleFunction<T, K extends keyof T>(
   modules: Array<T> | undefined,
   key: K
 ): Array<Exclude<T[K], undefined>> {
-  modules?.map((item) => {
-    console.log(item);
-  });
-  console.log("modules", modules);
-  console.log("key", key);
   return modules ? (modules.map((m) => m[key]).filter((_) => _) as any) : [];
 }
 
 /**
- * 在ASTElement中获取并移除指定的属性
+ * 在ASTElement移除指定的属性
  */
 export function getAndRemoveAttr(
   el: ASTElement,
@@ -33,6 +28,7 @@ export function getAndRemoveAttr(
   // 如果属性存在于 attrsMap 中，获取其值
   if ((val = el.attrsMap[name]) != null) {
     const list = el.attrsList;
+
     for (let i = 0, l = list.length; i < l; i++) {
       if (list[i].name === name) {
         // 从 attrsList 中移除该属性

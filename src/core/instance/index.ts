@@ -18,6 +18,8 @@ function Vue(options: any) {
 
 initMixin(Vue);
 stateMixin(Vue);
+
+
 initGlobalAPI(Vue);
 initMount(Vue);
 

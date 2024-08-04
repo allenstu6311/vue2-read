@@ -6,6 +6,7 @@ const baseCompile = function (
   template: string,
   options: CompilerOptions //一開始的options + baseoptions
 ) {
+
   const ast = parse(template.trim(), options);
 
   return {
