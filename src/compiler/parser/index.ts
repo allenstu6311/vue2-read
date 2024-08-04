@@ -86,6 +86,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
 
       if (!inVPre) {
         proceePre(element);
+        //看到這裡
       }
 
     },
@@ -99,7 +100,6 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
  * handle v-pre (不須經過vue資料綁定項目)
  */
 function proceePre(el: any) {
-  console.log('proceePre',el)
   if (getAndRemoveAttr(el, 'v-pre') != null) {
     el.pre = true;
   }
