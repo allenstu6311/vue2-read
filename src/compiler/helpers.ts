@@ -1,6 +1,7 @@
 import { ASTElement } from "../types/compiler.js";
 import { parseFilters } from "./parser/filter-parser.js";
 
+type Range = { start?: number; end?: number };
 /**
  * 提醒編譯錯誤
  */
@@ -24,11 +25,9 @@ export function getAndRemoveAttr(
   removeFromMap?: boolean
 ): string | undefined {
   let val;
-
   // 如果属性存在于 attrsMap 中，获取其值
   if ((val = el.attrsMap[name]) != null) {
     const list = el.attrsList;
-
     for (let i = 0, l = list.length; i < l; i++) {
       if (list[i].name === name) {
         // 从 attrsList 中移除该属性
@@ -50,10 +49,39 @@ export function getBindingAttr(
   getStatic?: boolean
 ) {
   const dynamivValue =
-    getAndRemoveAttr(el, ":" + name) || getAndRemoveAttr(el, "v-bind" + name);
+    getAndRemoveAttr(el, ":" + name) || getAndRemoveAttr(el, "v-bind:" + name);
 
   if (dynamivValue != null) return parseFilters(dynamivValue);
   //   else if(getStatic !== false){
   //     const
   //   }
+}
+
+export function addAttr(
+  el: ASTElement,
+  name: string,
+  value: any,
+  range?: Range,
+  dynamic?: boolean
+) {
+  const attrs = dynamic
+    ? el.dynamicAttrs || (el.dynamicAttrs = [])
+    : el.attrs || (el.attrs = []);
+
+  attrs.push(rangeSetItem({ name, value, dynamic }, range));
+  el.plain = false;
+}
+
+function rangeSetItem(item: any, range?: { start?: number; end?: number }) {
+  if (range) {
+    if (range.start != null) {
+      item.start = range.start;
+    }
+
+    if (range.end != null) {
+      item.end = range.end;
+    }
+  }
+
+  return item;
 }

@@ -23,10 +23,21 @@ export const isSVG = makeMap(
   true
 );
 
+//判斷標籤是否為pre
+export const isPreTag = (tag?: string): boolean => tag === "pre";
+
+/**
+ * 檢查標籤是否為平台原生
+ * @param tag
+ * @returns
+ */
 export const isReservedTag = (tag: string): boolean | undefined => {
   return isHTMLTag(tag) || isSVG(tag);
 };
 
+/**
+ *
+ */
 export function getTagNamespace(tag: string): string | undefined {
   if (isSVG(tag)) {
     return "svg";

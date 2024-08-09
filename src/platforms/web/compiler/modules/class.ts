@@ -1,8 +1,11 @@
-import { ASTElement, CompilerOptions } from "../../../../types/compiler.js";
+import {
+  ASTElement,
+  CompilerOptions,
+  ModuleOptions,
+} from "../../../../types/compiler.js";
 import { baseWarn, getAndRemoveAttr } from "../../../../compiler/helpers.js";
 
 function transformNode(el: ASTElement, options: CompilerOptions) {
-  console.log("transfomNode");
   const warn = options.warn || baseWarn;
   const staticClass = getAndRemoveAttr(el, "class");
 
@@ -14,4 +17,4 @@ function transformNode(el: ASTElement, options: CompilerOptions) {
 
 export default {
   transformNode,
-} as any;
+} as ModuleOptions;

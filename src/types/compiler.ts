@@ -7,7 +7,12 @@ export type CompilerOptions = {
   staticKeys?: string; // a list of AST properties to be considered static; for optimization
   isUnaryTag?: (tag: string) => boolean | undefined; // 檢查是否為一元 <p class="test" />
   canBeLeftOpenTag?: (tag: string) => boolean | undefined; // check if a tag can be left opened
-  isReservedTag?: (tag: string) => boolean | undefined; // check if a tag is a native for the platform
+  /**
+   * 檢查標籤是否為平台原生
+   * @param tag
+   * @returns
+   */
+  isReservedTag?: (tag: string) => boolean | undefined;
   preserveWhitespace?: boolean; // preserve whitespace between elements? (Deprecated)
   whitespace?: "preserve" | "condense"; // whitespace handling strategy
   optimize?: boolean; // optimize static content?
@@ -129,6 +134,9 @@ export type ASTElement = {
   attrs?: Array<ASTAttr>;
   dynamicAttrs?: Array<ASTAttr>;
   props?: Array<ASTAttr>;
+  /**
+   * 是否為普通元素(不需處理的元素)
+   */
   plain?: boolean;
   pre?: true;
   ns?: string;
