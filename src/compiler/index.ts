@@ -7,16 +7,16 @@ const baseCompile = function (
   template: string,
   options: CompilerOptions //一開始的options + baseoptions
 ) {
+  //生成AST樹
   const ast = parse(template.trim(), options);
-
   // console.log("ast", ast);
-
+  //生成表達函數
   const code = generate(ast, options);
 
   return {
     ast,
-    render: "",
-    staticRenderFns: () => {},
+    render: code.render,
+    staticRenderFns: code.staticRenderFns,
   };
 };
 

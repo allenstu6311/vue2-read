@@ -180,7 +180,6 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
         !(end = html.match(startTagClose)) &&
         (attr = html.match(dynamicArgAttribute) || html.match(attribute))
       ) {
-        // console.log('attr',attr)
         attr.start = index;
         advance(attr[0].length);
         attr.end = index;

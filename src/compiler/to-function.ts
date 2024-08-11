@@ -8,6 +8,9 @@ type CompiledFunctionResult = {
   staticRenderFns: Array<Function>;
 };
 
+/**
+ * 創造render function 
+ */
 function createFunction(code: any, errors: any) {
   try {
     return new Function(code);
@@ -42,9 +45,12 @@ export function createCompileToFunctionFn(compile: Function): Function {
     const compiled = compile(template, options);
 
     const res: any = {};
-    res.render = "";
-    res.staticRenderFns = () => {};
+    const fnGenErrors: any[] = []
+    res.render = createFunction(compiled.render,fnGenErrors);
+    res.staticRenderFns = compiled.staticRenderFns.map((code:any) => {
+      return createFunction(code, fnGenErrors)
+    })
 
-    return res;
+    return (cache[key] = res)
   };
 }

@@ -122,7 +122,9 @@ export declare class Component {
 
   // createElement
 
-  // _c is internal that accepts `normalizationType` optimization hint
+  /**
+   * 針對元素节点或组件节点的虚拟 DOM 节点
+   */
   _c: (
     vnode?: VNode,
     data?: VNodeData,
@@ -140,7 +142,9 @@ export declare class Component {
   ) => VNode | VNodeChildren;
   // toString
   _s: (value: any) => string;
-  // text to VNode
+  /**
+   * 針對文本节点的虚拟 DOM 节点
+   */
   _v: (value: string | number) => VNode;
   // toNumber
   _n: (value: string) => number | string;

@@ -60,8 +60,6 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
   transforms = pluckModuleFunction(options.modules, "transformNode");
   preTransforms = pluckModuleFunction(options.modules, "preTransformNode");
   postTransforms = pluckModuleFunction(options.modules, "postTransformNode");
-  // console.log("preTransforms", preTransforms);
-  // console.log("options", options.modules);
   delimiters = options.delimiters;
 
   const stack: any[] = [];
@@ -136,7 +134,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       // 檢查是否為pre標籤
       if (platformIsPreTag(element.tag)) inPre = true;
 
-      if (inPre) {
+      if (inVPre) {
         // 暫時先不測試
       } else {
         // v-for,v-if邏輯
@@ -217,6 +215,7 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
     element = transforms[i](element, options) || element;
   }
   processAttrs(element);
+  console.log('element',element)
   return element;
 
   /**

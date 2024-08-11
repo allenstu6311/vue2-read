@@ -70,11 +70,24 @@ export type ModuleOptions = {
 };
 
 export type ASTModifiers = { [key: string]: boolean };
-export type ASTIfCondition = { exp: string | null; block: ASTElement };
+
+/**
+ * v-if v-else-if v-else
+ */
+export type ASTIfCondition = { 
+  exp: string | null; // 指令 
+  block: ASTElement //模塊
+};
 export type ASTIfConditions = Array<ASTIfCondition>;
 
 export type ASTAttr = {
+  /**
+   * attr key
+   */
   name: string;
+  /**
+   * arrt value
+   */ 
   value: any;
   dynamic?: boolean;
   start?: number;
@@ -111,6 +124,11 @@ export type ASTNode = ASTElement | ASTText | ASTExpression;
  * Vue 抽象樹
  */
 export type ASTElement = {
+  /**
+   * 1:元素節點(HTML標籤),例:<div>
+   * 2:表達式節點,例:{{test}}
+   * 3:純文本節點
+   */
   type: 1;
   tag: string;
   attrsList: Array<ASTAttr>;
