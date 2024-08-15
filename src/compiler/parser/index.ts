@@ -157,7 +157,6 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       currentParent = stack[stack.length - 1];
       closeElement(element);
     },
-
     chars(text: string, start?: number, end?: number) {
       if (!currentParent) return;
       const children = currentParent.children;
@@ -215,7 +214,6 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
     element = transforms[i](element, options) || element;
   }
   processAttrs(element);
-  console.log('element',element)
   return element;
 
   /**

@@ -13,7 +13,6 @@ const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`;
 // console.log('ncname',ncname)
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`;
 const startTagOpen = new RegExp(`^<${qnameCapture}`);
-// console.log('startTagOpen',startTagOpen)
 const startTagClose = /^\s*(\/?)>/;
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`);
 const doctype = /^<!DOCTYPE [^>]+>/i;
@@ -44,6 +43,17 @@ const decodingMap: any = {
 };
 const encodedAttr = /&(?:lt|gt|quot|amp|#39);/g;
 const encodedAttrWithNewLines = /&(?:lt|gt|quot|amp|#39|#10|#9);/g;
+
+/**
+ * 匹配後產生的html內容
+ */
+interface matchPattern {
+  0: string; // "start:<div || end: </h1>"
+  1: string; // "h1"
+  groups: any;
+  index: number;
+  input: string;
+}
 
 /**
  * 取出標籤中attr的部分
@@ -77,11 +87,12 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
   let last, lastTag: any;
 
   while (html) {
-    last = html;
+    last = html; //<div id=\"app\">\n      <h1 class=\"test\">{{test}}</h1>\n    </div>
 
     //確保不再script && style標籤當中
     if (!lastTag || !isPlainTextElement(lastTag)) {
       let textEnd = html.indexOf("<");
+      // console.log("textEnd", textEnd);
       if (textEnd === 0) {
         if (comment.test(html)) {
           const commentEnd = html.indexOf("-->");
@@ -92,8 +103,8 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
           }
         }
 
-        const endTagMatch = html.match(endTag);
-        // console.log('endTagMatch',endTagMatch)
+        const endTagMatch: matchPattern = html.match(endTag);
+        // console.log("endTagMatch", endTagMatch);
         if (endTagMatch) {
           const curIndex = index;
           advance(endTagMatch[0].length);
@@ -104,6 +115,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
         // start tag
         const startTagMatch = parseStartTag();
         if (startTagMatch) {
+          // console.log("startTagMatch", startTagMatch);
           handleStartTag(startTagMatch);
           if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) {
             advance(1);
@@ -113,6 +125,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       }
 
       let text, rest, next;
+      // console.log("text", text);
       if (textEnd >= 0) {
         rest = html.slice(textEnd);
 
@@ -124,6 +137,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
         ) {
           // 查找首次出現的位置
           next = rest.indexOf("<", 1);
+          console.log("next", next);
           if (next < 0) break;
           rest = html.slice(textEnd);
         }
@@ -133,7 +147,6 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       if (textEnd < 0) {
       }
 
-      //跨果
       if (text) {
         advance(text.length);
       }
@@ -149,6 +162,8 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       break;
     }
   }
+  //清理所有剩餘標籤
+  parseEndTag();
 
   /**
    * 移動擷取位置 p> ---> </p
@@ -160,26 +175,28 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
 
   /**
    * 解析開始的tag<p>
+   * @returns match
    */
   function parseStartTag() {
     // console.log('html', html)
-    const start = html.match(startTagOpen);
-    // console.log('parseStartTag', start)
+    const start: matchPattern = html.match(startTagOpen);
     if (start) {
       const match: any = {
         tagName: start[1],
-        attrs: [],
+        attrs: [], // 當前標籤內容
         start: index,
       };
-
+      // console.log("start", start);
       advance(start[0].length);
-      let end, attr;
+      let end: matchPattern, attr: matchPattern;
 
       // 如果end跟attr都沒有被賦值就停止迴圈
       while (
         !(end = html.match(startTagClose)) &&
         (attr = html.match(dynamicArgAttribute) || html.match(attribute))
       ) {
+        // console.log("end", end);
+
         attr.start = index;
         advance(attr[0].length);
         attr.end = index;
@@ -196,7 +213,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
   }
 
   /**
-   *
+   * 處理標籤中的attr
    */
   function handleStartTag(match: any) {
     const tagName = match.tagName;
@@ -208,13 +225,13 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
     }
 
     const unary = isUnaryTag(tagName) || !!unarySlash;
-    // console.log('unary',unary)
     const l = match.attrs.length;
     const attrs: ASTAttr[] = new Array(l);
 
     for (let i = 0; i < l; i++) {
       const args = match.attrs[i];
       const value = args[3] || args[4] || args[5] || "";
+      // console.log("args", args);
       const shouldDecodeNewlines =
         tagName === "a" && args[1] === "href"
           ? options.shouldDecodeNewlinesForHref
@@ -227,6 +244,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       };
     }
     if (!unary) {
+      //記錄所有沒有結尾的標籤
       stack.push({
         tag: tagName,
         lowerCasedTag: tagName.toLowerCase(), //小寫標籤
@@ -245,12 +263,14 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
    * 解析結束的標籤</p>
    */
   function parseEndTag(tagName?: any, start?: any, end?: any) {
-    let pos, lowerCasedTagName;
+    let pos;
+    let lowerCasedTagName;
     if (start === null) start = index;
     if (end === null) end = index;
 
     if (tagName) {
       lowerCasedTagName = tagName.toLowerCase();
+      // 沒有結尾標籤則跳過
       for (pos = stack.length - 1; pos >= 0; pos--) {
         if (stack[pos].lowerCasedTag === lowerCasedTagName) {
           break;
