@@ -12,7 +12,7 @@ const dynamicArgAttribute =
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`;
 // console.log('ncname',ncname)
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`;
-const startTagOpen = new RegExp(`^<${qnameCapture}`);
+const startTagOpen = new RegExp(`^<${qnameCapture}`); //取的開始標籤內容
 const startTagClose = /^\s*(\/?)>/;
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`);
 const doctype = /^<!DOCTYPE [^>]+>/i;
@@ -27,7 +27,7 @@ const __DEV__ = false;
 const isIgnoreNewlineTag = makeMap("pre,textarea", true);
 
 /**
- * 忽略第一行
+ * 忽略第一行跟換行標籤
  */
 const shouldIgnoreFirstNewline = (tag: any, html: any) =>
   tag && isIgnoreNewlineTag(tag) && html[0] === "\n";
@@ -47,16 +47,28 @@ const encodedAttrWithNewLines = /&(?:lt|gt|quot|amp|#39|#10|#9);/g;
 /**
  * 匹配後產生的html內容
  */
-interface matchPattern {
+type matchPattern = {
   0: string; // "start:<div || end: </h1>"
   1: string; // "h1"
   groups: any;
   index: number;
   input: string;
-}
+};
 
 /**
- * 取出標籤中attr的部分
+ * 解析標籤結構
+ */
+type tagPattern = {
+  attts: any[];
+  tagName: string;
+  start?: number;
+  end?: number;
+  unarySlash: string; //檢查是否為一元標籤
+};
+
+/**
+ * 取出標籤中attr的值
+ * @returns id="app" => app
  */
 function decodeAttr(value: any, shouldDecodeNewlines: any) {
   const re = shouldDecodeNewlines ? encodedAttrWithNewLines : encodedAttr;
@@ -78,8 +90,7 @@ export interface HTMLParserOptions extends CompilerOptions {
   comment?: (content: string, start: number, end: number) => void;
 }
 export function parseHTML(html: any, options: HTMLParserOptions) {
-  // console.log('parseHTML', html)
-  const stack: any[] = [];
+  const stack: any[] = []; //紀錄沒有結尾的標籤
   const expectHTML = options.expectHTML;
   const isUnaryTag = options.isUnaryTag || no; // 在baseOptions
   const canBeLeftOpenTag = options.canBeLeftOpenTag || no; //在baseOptions
@@ -88,7 +99,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
 
   while (html) {
     last = html; //<div id=\"app\">\n      <h1 class=\"test\">{{test}}</h1>\n    </div>
-
+    // console.log("html", html);
     //確保不再script && style標籤當中
     if (!lastTag || !isPlainTextElement(lastTag)) {
       let textEnd = html.indexOf("<");
@@ -103,8 +114,8 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
           }
         }
 
+        // end tag
         const endTagMatch: matchPattern = html.match(endTag);
-        // console.log("endTagMatch", endTagMatch);
         if (endTagMatch) {
           const curIndex = index;
           advance(endTagMatch[0].length);
@@ -113,13 +124,11 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
         }
 
         // start tag
-        const startTagMatch = parseStartTag();
+        const startTagMatch: tagPattern = parseStartTag();
+        // console.log(startTagMatch);
         if (startTagMatch) {
-          // console.log("startTagMatch", startTagMatch);
           handleStartTag(startTagMatch);
-          if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) {
-            advance(1);
-          }
+          if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) advance(1);
           continue;
         }
       }
@@ -129,16 +138,16 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       if (textEnd >= 0) {
         rest = html.slice(textEnd);
 
+        //須不包含開始或結束的標籤才會執行
         while (
           !endTag.test(rest) &&
           !startTagOpen.test(rest) &&
           !comment.test(rest) &&
           !conditionalComment.test(rest)
         ) {
-          // 查找首次出現的位置
           next = rest.indexOf("<", 1);
-          console.log("next", next);
           if (next < 0) break;
+          textEnd += next;
           rest = html.slice(textEnd);
         }
         text = html.substring(0, textEnd);
@@ -180,6 +189,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
   function parseStartTag() {
     // console.log('html', html)
     const start: matchPattern = html.match(startTagOpen);
+
     if (start) {
       const match: any = {
         tagName: start[1],
@@ -190,21 +200,20 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       advance(start[0].length);
       let end: matchPattern, attr: matchPattern;
 
-      // 如果end跟attr都沒有被賦值就停止迴圈
+      // 取得attr內容及結尾標籤">"
       while (
-        !(end = html.match(startTagClose)) &&
+        !(end = html.match(startTagClose)) && //找尋結束標籤">"
         (attr = html.match(dynamicArgAttribute) || html.match(attribute))
       ) {
-        // console.log("end", end);
-
         attr.start = index;
-        advance(attr[0].length);
+        advance(attr[0].length); //取得下一個attr
         attr.end = index;
         match.attrs.push(attr);
       }
 
+      //處理">"
       if (end) {
-        match.unarySlash = end[1]; // => ""
+        match.unarySlash = end[1];
         advance(end[0].length);
         match.end = index;
         return match;
@@ -247,7 +256,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       //記錄所有沒有結尾的標籤
       stack.push({
         tag: tagName,
-        lowerCasedTag: tagName.toLowerCase(), //小寫標籤
+        lowerCasedTag: tagName.toLowerCase(), //小寫標籤(之後比對end標籤用)
         attrs: attrs,
         start: match.start,
         end: match.end,

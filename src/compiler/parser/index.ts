@@ -1,16 +1,18 @@
+// @ts-nocheck
 import {
   ASTAttr,
   ASTElement,
   ASTNode,
   CompilerOptions,
 } from "../../types/compiler.js";
-import { no } from "../../core/util/index.js";
+import { cached, no } from "../../core/util/index.js";
 import { addAttr, getBindingAttr, pluckModuleFunction } from "../helpers.js";
 import { parseHTML } from "./html-parser.js";
 import { getAndRemoveAttr } from "../helpers.js";
 import { parseText } from "./text-parser.js";
 
 export const dirRE = false ? /^v-|^@|^:|^\.|^#/ : /^v-|^@|^:|^#/;
+const decodeHTMLCached = cached(he.decode);
 
 let delimiters: any;
 let transforms: any;
@@ -22,7 +24,7 @@ let platformGetTagNamespace;
 let maybeComponent;
 
 /**
- * 製作AST對象(並產生attrsMap)
+ * 製作AST對象(並產生attrsList, attrsMap)
  */
 export function createASTElement(
   tag: string,
@@ -57,12 +59,12 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       !(el.attrsMap.is ? isReservedTag(el.attrsMap.is) : isReservedTag(el.tag))
     );
 
-  transforms = pluckModuleFunction(options.modules, "transformNode");
+  transforms = pluckModuleFunction(options.modules, "transformNode"); //處理 class && style
   preTransforms = pluckModuleFunction(options.modules, "preTransformNode");
   postTransforms = pluckModuleFunction(options.modules, "postTransformNode");
   delimiters = options.delimiters;
 
-  const stack: any[] = [];
+  const stack: any[] = []; //紀錄AST對象
   const preserveWhitespace = options.preserveWhitespace !== false;
   const whitespaceOption = options.whitespace;
   let root: any;
@@ -73,12 +75,10 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
 
   function closeElement(element: any) {
     trimEndingWhitespace(element);
-
     if (!inVPre && !element.processed) {
       element = processElement(element, options);
     }
     // if (!stack.length && element !== root) {}
-
     if (currentParent && !element.forbidden) {
       currentParent.children.push(element);
       element.parent = currentParent;
@@ -114,10 +114,12 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,
     shouldKeepComment: options.comments,
     outputSourceRange: options.outputSourceRange,
-
+    /**
+     * 創建AST樹
+     */
     start(tag, attrs, unary, start, end) {
       let element: ASTElement = createASTElement(tag, attrs, currentParent);
-      // console.log("start", element);
+
       // 處理input v-model
       for (let i = 0; i < preTransforms.length; i++) {
         element = preTransforms[i](element, options) || element;
@@ -139,7 +141,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       } else {
         // v-for,v-if邏輯
       }
-
+      //如果当前是第一个开始节点，就将 root 赋值
       if (!root) {
         root = element;
       }
@@ -148,20 +150,32 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         //賦值當前父層
         currentParent = element;
         stack.push(element);
+      } else {
+        // 如果是一元节点直接调用 closeElement ，将当前节点加入到父节点中。
+        closeElement(element);
       }
     },
     end(tag, start, end) {
       const element = stack[stack.length - 1];
       // pop stack
       stack.length -= 1;
-      currentParent = stack[stack.length - 1];
+      currentParent = stack[stack.length - 1]; //取得當前父層
       closeElement(element);
     },
+    /**
+     * 解析標籤中的文本
+     */
     chars(text: string, start?: number, end?: number) {
       if (!currentParent) return;
       const children = currentParent.children;
 
+      //是否為v-pre以及判斷是否為空白字串
       if (inPre || text.trim()) {
+        // console.log(text);
+        // {{ test }}
+        text = isTextTag(currentParent)
+          ? text
+          : (decodeHTMLCached(text) as string);
       } else if (!children.length) {
         text = "";
       }
@@ -169,11 +183,24 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       if (text) {
         let res;
         let child: ASTNode | undefined;
+
+        //有表達式{{}}的字串
         if (!inVPre && text !== " " && (res = parseText(text, delimiters))) {
           child = {
             type: 2,
             expression: res.expression,
             tokens: res.tokens,
+            text,
+          };
+        }
+        //一般文字
+        else if (
+          text !== " " ||
+          !children.length ||
+          children[children.length - 1].text !== " "
+        ) {
+          child = {
+            type: 3,
             text,
           };
         }
@@ -209,10 +236,11 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
   // ref
   // slot
   // component
-
+  //transformNode(取得class)
   for (let i = 0; i < transforms.length; i++) {
     element = transforms[i](element, options) || element;
   }
+
   processAttrs(element);
   return element;
 
@@ -227,10 +255,11 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
    *
    */
   function processAttrs(el: any) {
-    const list = el.attrsList;
+    const list: Array<ASTAttr> = el.attrsList;
+
     let i, l, name, rawName, value, modifiers, syncGen, isDynamic;
 
-    for (let i = 0; i < list.length; i++) {
+    for (i = 0; i < list.length; i++) {
       name = rawName = list[i].name; // attr key (id)
       value = list[i].value; // attr val (app)
 
@@ -252,4 +281,11 @@ function makeAttrsMap(attrs: Array<Record<string, any>>): Record<string, any> {
     map[attrs[i].name] = attrs[i].value;
   }
   return map;
+}
+
+/**
+ * 不要解碼script、style標籤
+ */
+function isTextTag(el: any): boolean {
+  return el.tag === "script" || el.tag === "style";
 }

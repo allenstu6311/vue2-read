@@ -72,6 +72,9 @@ export declare class Component {
   $off: (event?: string | Array<string>, fn?: Function) => Component;
   $emit: (event: string, ...args: Array<any>) => Component;
   $nextTick: (fn: (...args: any[]) => any) => void | Promise<any>;
+  /**
+   * 客戶端渲染VNode函數
+   */
   $createElement: (
     tag?: string | Component,
     data?: Record<string, any>,
@@ -123,7 +126,12 @@ export declare class Component {
   // createElement
 
   /**
-   * 針對元素节点或组件节点的虚拟 DOM 节点
+   * 模板編譯器生成的渲染函數(內部使用)
+   *
+   * @param vnode tag
+   * @param data data
+   * @param children children
+   * @param normalizationType 規範化類型
    */
   _c: (
     vnode?: VNode,

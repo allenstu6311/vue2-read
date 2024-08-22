@@ -1,3 +1,5 @@
+export const emptyObject: Record<string, any> = Object.freeze({});
+
 export const isArray = Array.isArray;
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;

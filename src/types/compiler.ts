@@ -74,12 +74,15 @@ export type ASTModifiers = { [key: string]: boolean };
 /**
  * v-if v-else-if v-else
  */
-export type ASTIfCondition = { 
-  exp: string | null; // 指令 
-  block: ASTElement //模塊
+export type ASTIfCondition = {
+  exp: string | null; // 指令
+  block: ASTElement; //模塊
 };
 export type ASTIfConditions = Array<ASTIfCondition>;
 
+/**
+ * el.ttrsList
+ */
 export type ASTAttr = {
   /**
    * attr key
@@ -87,7 +90,7 @@ export type ASTAttr = {
   name: string;
   /**
    * arrt value
-   */ 
+   */
   value: any;
   dynamic?: boolean;
   start?: number;

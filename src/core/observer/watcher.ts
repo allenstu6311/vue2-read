@@ -1,10 +1,10 @@
-import Dep, { DepTarget, pushTarget, popTarget } from "./dep";
+import Dep, { DepTarget, pushTarget, popTarget } from "./dep.js";
 import type { SimpleSet } from "../util/index.js";
 import { DebuggerEvent, DebuggerOptions } from "../../v3";
 import {
   activeEffectScope,
   recordEffectScope,
-} from "../../v3/reactivity/effectScope";
+} from "../../v3/reactivity/effectScope.js";
 import { isFunction, parsePath } from "../util/index.js";
 
 /**

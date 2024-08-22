@@ -15,6 +15,9 @@ type TextParseResult = {
   tokens: Array<string | { "@binding": string }>;
 };
 
+/**
+ * 取得{{test}}表達式
+ */
 export function parseText(
   text: string,
   delimiters?: [string, string]

@@ -32,7 +32,7 @@ export function observe(
 }
 
 /**
- *
+ * 將屬性轉換為響應式，並通知修改
  */
 export function defineReactive(
   obj: Object | any,

@@ -45,7 +45,17 @@ export class EffectScope {
   }
 
   run<T>() {}
-  on() {}
+  /**
+   * 啟用當前的 EffectScope 為活動作用域。
+   *
+   * 當這個方法被調用時，`activeEffectScope` 會被設置為當前的 EffectScope，
+   * 確保在這個作用域內創建的任何響應式副作用都會被關聯到這個作用域。
+   *
+   * 這個方法應該只在非分離的作用域上調用，並且主要用於內部管理作用域的狀態。
+   */
+  on() {
+    activeEffectScope = this;
+  }
   off() {}
   stop(fromParent?: boolean) {}
 }
@@ -61,4 +71,11 @@ export function recordEffectScope(
   if (scope && scope.active) {
     scope.effects.push(effect);
   }
+}
+
+/**
+ *
+ */
+export function getCurrentScope() {
+  return activeEffectScope;
 }

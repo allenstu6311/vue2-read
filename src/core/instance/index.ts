@@ -11,6 +11,7 @@ import { initMount } from "../../platforms/web/runtime-with-compiler.js";
 import { cached } from "../shared/util.js";
 import { compileToFunctions } from "../../platforms/web/compiler/index.js";
 import { query } from "../../platforms/web/util/index.js";
+import { mountComponent } from "./lifecycle.js";
 
 function Vue(options: any) {
   this._init(options);
@@ -19,9 +20,16 @@ function Vue(options: any) {
 initMixin(Vue);
 stateMixin(Vue);
 
-
+// DIY
 initGlobalAPI(Vue);
 initMount(Vue);
+
+Vue.prototype.$mount = function (
+  el?: string | Element,
+  hydrating?: boolean
+): Component {
+  return mountComponent(this, el, hydrating);
+};
 
 export default Vue as unknown as GlobalAPI;
 

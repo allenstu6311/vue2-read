@@ -1,7 +1,7 @@
 import { EffectScope } from "../../v3/reactivity/effectScope.js";
 import { mergeOptions } from "../util/options.js";
 import type { Component } from "../../types/component.js";
-import { initLifecycle } from "./lifecycle.js";
+import { callHook, initLifecycle } from "./lifecycle.js";
 import { initEvents } from "./events.js";
 import { initRender } from "./render.js";
 import {
@@ -33,7 +33,7 @@ export function initMixin(Vue: any) {
       );
     }
 
-    console.log(vm);
+    // console.log(vm);
     vm._renderProxy = vm; // 之後考慮用proxy
     vm._self = vm;
 
@@ -43,6 +43,7 @@ export function initMixin(Vue: any) {
     initLifecycle(vm);
     initEvents(vm);
     initRender(vm);
+    callHook(vm, "beforeCreate", undefined, false /* setContext */);
   };
 }
 

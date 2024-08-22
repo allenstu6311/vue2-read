@@ -11,7 +11,7 @@ const idToTemplate = cached((id) => {
 });
 
 export function initMount(Vue: any) {
-  let mount: any = Vue.prototype.$mount;
+  const mount: any = Vue.prototype.$mount;
 
   Vue.prototype.$mount = function (el?: string | Element, hydrating?: boolean) {
     const options = this.$options;
@@ -50,12 +50,12 @@ export function initMount(Vue: any) {
         );
         // console.log("render", render);
         // console.log("staticRenderFns", staticRenderFns);
-        options.render = render
+        options.render = render;
         options.staticRenderFns = staticRenderFns;
       }
     }
 
-    return "";
+    return mount.call(this, el, hydrating);
   };
 }
 

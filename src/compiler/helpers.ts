@@ -57,6 +57,9 @@ export function getBindingAttr(
   //   }
 }
 
+/**
+ * 把el.attrsList更新el.attrs
+ */
 export function addAttr(
   el: ASTElement,
   name: string,
@@ -72,6 +75,9 @@ export function addAttr(
   el.plain = false;
 }
 
+/**
+ * 更新el.attrs開始及結束位置
+ */
 function rangeSetItem(item: any, range?: { start?: number; end?: number }) {
   if (range) {
     if (range.start != null) {
@@ -83,5 +89,5 @@ function rangeSetItem(item: any, range?: { start?: number; end?: number }) {
     }
   }
 
-  return item;
+  return item; // { name:'id',value:'app'}
 }
