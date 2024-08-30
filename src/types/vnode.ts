@@ -1,6 +1,6 @@
-import { ASTModifiers } from "./compiler";
-import { Component } from "./component";
-import VNode from "../core/vdom/vnode";
+import { ASTModifiers } from "./compiler.js";
+import { Component } from "./component.js";
+import VNode from "../core/vdom/vnode.js";
 
 /**
  * @internal
@@ -78,3 +78,21 @@ export type VNodeDirective = {
 export type ScopedSlotsData = Array<
   { key: string; fn: Function } | ScopedSlotsData
 >;
+
+/**
+ * @internal
+ */
+export type VNodeWithData = VNode & {
+  tag: string;
+  data: VNodeData;
+  children: Array<VNode>;
+  text: void;
+  elm: any;
+  ns: string | void;
+  context: Component;
+  key: string | number | undefined;
+  parent?: VNodeWithData;
+  componentOptions?: VNodeComponentOptions;
+  componentInstance?: Component;
+  isRootInsert: boolean;
+};

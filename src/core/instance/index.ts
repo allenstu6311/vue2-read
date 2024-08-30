@@ -8,10 +8,12 @@ import { initMount } from "../../platforms/web/runtime-with-compiler.js";
 
 //test
 
-import { cached } from "../shared/util.js";
+import { cached, noop } from "../shared/util.js";
 import { compileToFunctions } from "../../platforms/web/compiler/index.js";
 import { query } from "../../platforms/web/util/index.js";
-import { mountComponent } from "./lifecycle.js";
+import { lifecycleMixin, mountComponent } from "./lifecycle.js";
+import { renderMixin } from "./render.js";
+import { patch } from "../../platforms/web/runtime/path.js";
 
 function Vue(options: any) {
   this._init(options);
@@ -19,6 +21,8 @@ function Vue(options: any) {
 
 initMixin(Vue);
 stateMixin(Vue);
+lifecycleMixin(Vue);
+renderMixin(Vue);
 
 // DIY
 initGlobalAPI(Vue);
@@ -30,6 +34,7 @@ Vue.prototype.$mount = function (
 ): Component {
   return mountComponent(this, el, hydrating);
 };
+Vue.prototype.__patch__ = patch;
 
 export default Vue as unknown as GlobalAPI;
 

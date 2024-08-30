@@ -17,3 +17,23 @@ export function parsePath(path: string): any {
     return obj;
   };
 }
+
+/**
+ * 檢查字串是否以 $ 或 _ 開頭
+ */
+export function isResvered(str: string): boolean {
+  const c: any = (str + "").charAt(0);
+  return c === 0x24 || c === 0x5f;
+}
+
+/**
+ * 定義一個屬性
+ */
+export function def(obj: Object, key: string, val: any, enumerable?: boolean) {
+  Object.defineProperty(obj, key, {
+    value: val,
+    enumerable: !!enumerable,
+    writable: true,
+    configurable: true,
+  });
+}

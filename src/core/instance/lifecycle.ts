@@ -6,9 +6,10 @@ import {
 } from "../../v3/currentInstance.js";
 import { getCurrentScope } from "../../v3/reactivity/effectScope.js";
 import { popTarget, pushTarget } from "../observer/dep.js";
-import { createEmptyVNode } from "../vdom/vnode.js";
+import VNode, { createEmptyVNode } from "../vdom/vnode.js";
 import { noop } from "../shared/util.js";
 
+export let activeInstance: any = null;
 /**
  * 設置組件父子狀態、生命週期狀態初始值
  */
@@ -95,4 +96,29 @@ export function callHook(
   //   if (handlers) {}
 
   popTarget();
+}
+
+export function setActiveInstance(vm: Component) {
+  const prevActiveInstance = activeInstance; //上一個活動實例
+  activeInstance = vm;
+}
+
+export function lifecycleMixin(Vue: typeof Component) {
+  Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
+    // console.log("_update vnode", vnode);
+    const vm: Component = this;
+    const preEl = vm.$el;
+    const prevVnode = vm._vnode;
+    const restoreActiveInstance = setActiveInstance(vm);
+    vm._vnode = vnode;
+
+    // 是否為初次渲染
+    if (!prevVnode) {
+      //init(開始渲染vnode)
+      vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */);
+    } else {
+      //update
+      vm.$el = vm.__patch__(prevVnode, vnode);
+    }
+  };
 }

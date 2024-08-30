@@ -1,33 +1,78 @@
-import { TrackOpTypes, TriggerOpTypes } from "../../v3";
+import { TrackOpTypes, TriggerOpTypes } from "../../v3/index.js";
 import {
   hasOwn,
   isArray,
   isValidArrayIndex,
   hasChanged,
+  isPlainObject,
+  noop,
 } from "../shared/util.js";
+import { def } from "../util/index.js";
+import VNode from "../vdom/vnode.js";
 import Dep from "./dep.js";
 
 //無初始值
 const NO_INITIAL_VALUE = {};
 
 /**
- *
+ * 某些情況可能需要重新觀察或計算
+ */
+export let shouldObserve: boolean = true;
+
+// ssr mock dep
+const mockDep = {
+  notify: noop,
+  depend: noop,
+  addSub: noop,
+  removeSub: noop,
+} as Dep;
+
+/**
+ * 觀察者對象
  */
 export class Observer {
-  //   dep: Dep;
-  //   vmCount: number;
+  dep: Dep;
+  vmCount: number;
+
+  constructor(public value: any, public shallow = false, public mock = false) {
+    this.dep = mock ? mockDep : new Dep();
+    this.vmCount = 0;
+    def(value, "__ob__", this);
+    if (isArray(value)) {
+    } else {
+      /**
+       * 作用是將一個對象的所有屬性轉換為“響應式”屬性
+       * 當這些屬性發生變化時，Vue 可以自動檢測到變化並
+       * 更新相關的視圖
+       */
+      const keys = Object.keys(value);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        defineReactive(value, key, NO_INITIAL_VALUE, undefined, shallow, mock);
+      }
+    }
+  }
 }
 
 /**
- *
+ * 建立觀察者對象
  */
 export function observe(
   value: any | any,
   shallow: boolean,
   ssrMockReactivity?: boolean
 ): Observer | void {
+  // 判斷屬性是否已被觀察
   if (value && hasOwn(value, "__ob__") && value.__ob__ instanceof Observer) {
     return value.__ob__;
+  }
+  if (
+    shouldObserve &&
+    (isArray(value) || isPlainObject(value)) &&
+    !value._v_skip &&
+    !(value instanceof VNode)
+  ) {
+    return new Observer(value, shallow, ssrMockReactivity);
   }
 }
 

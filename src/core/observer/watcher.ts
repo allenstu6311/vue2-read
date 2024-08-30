@@ -1,12 +1,12 @@
 import Dep, { DepTarget, pushTarget, popTarget } from "./dep.js";
 import type { SimpleSet } from "../util/index.js";
-import { DebuggerEvent, DebuggerOptions } from "../../v3";
+import { DebuggerEvent, DebuggerOptions } from "../../v3/index.js";
 import {
   activeEffectScope,
   recordEffectScope,
 } from "../../v3/reactivity/effectScope.js";
-import { isFunction, parsePath } from "../util/index.js";
 
+import { isFunction, parsePath } from "../util/index.js";
 /**
  * @internal
  */
@@ -93,10 +93,11 @@ export default class Watcher implements DepTarget {
     this.expression = expOrFn.toString();
 
     if (isFunction(expOrFn)) {
-      this.getter = expOrFn;
+      this.getter = expOrFn; //渲染函數方法(vm._update(vm._render(), hydrating);)
     } else {
       this.getter = parsePath(expOrFn);
     }
+    this.value = this.lazy ? undefined : this.get();
   }
   /**
    * 評估 getter，並重新收集依賴項。
@@ -109,6 +110,7 @@ export default class Watcher implements DepTarget {
     try {
       //.call(第一個是執行環境，第二個是funcion的參數)
       value = this.getter.call(vm, vm);
+      // console.log("value", value);
     } catch (e) {
       if (this.user) {
       } else throw e;

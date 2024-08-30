@@ -1,9 +1,9 @@
-import { ComponentOptions } from "./options";
-import { VNodeChildren, VNodeData, ScopedSlotsData } from "./vnode";
-import { GlobalAPI } from "./global-api";
-import VNode from "../core/vdom/vnode";
-import Watcher from "../core/observer/watcher";
-import { EffectScope } from "../v3/reactivity/effectScope";
+import { ComponentOptions } from "./options.js";
+import { VNodeChildren, VNodeData, ScopedSlotsData } from "./vnode.js";
+import { GlobalAPI } from "./global-api.js";
+import VNode from "../core/vdom/vnode.js";
+import Watcher from "../core/observer/watcher.js";
+import { EffectScope } from "../v3/reactivity/effectScope.js";
 
 /**
  * @internal
@@ -41,6 +41,9 @@ export declare class Component {
   };
   $slots: { [key: string]: Array<VNode> };
   $scopedSlots: { [key: string]: () => VNode[] | undefined };
+  /**
+   * 保存實例的虛擬父節點
+   */
   $vnode: VNode; // the placeholder node for the component in parent's render tree
   $attrs: { [key: string]: string };
   $listeners: Record<string, Function | Array<Function>>;
@@ -114,6 +117,10 @@ export declare class Component {
   // rendering
   _render: () => VNode;
 
+  /**
+   * 負責將虛擬 DOM 轉換為真實的 DOM 結構，並將其掛載到頁面上
+   * @internal
+   */
   __patch__: (
     a: Element | VNode | void | null,
     b: VNode | null,

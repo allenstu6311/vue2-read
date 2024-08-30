@@ -1,6 +1,6 @@
-import { ComponentOptions } from "./../../types/options";
-import { VNodeComponentOptions, VNodeData } from "./../../types/vnode";
-import { Component } from "../../types/component";
+import { ComponentOptions } from "./../../types/options.js";
+import { VNodeComponentOptions, VNodeData } from "./../../types/vnode.js";
+import { Component } from "../../types/component.js";
 
 export default class VNode {
   tag?: string;
@@ -69,11 +69,11 @@ export default class VNode {
 }
 
 /**
- * 創建虛擬DOM 
+ * 創建虛擬DOM
  */
-export const createEmptyVNode = (text: string = '') => {
+export const createEmptyVNode = (text: string = "") => {
   const node = new VNode();
   node.text = text;
   node.isComment = true;
-  return node
-}
+  return node;
+};

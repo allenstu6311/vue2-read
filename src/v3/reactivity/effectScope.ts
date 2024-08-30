@@ -1,4 +1,4 @@
-import Watcher from "../../core/observer/watcher";
+import Watcher from "../../core/observer/watcher.js";
 
 export let activeEffectScope: EffectScope | undefined;
 export class EffectScope {

@@ -1,4 +1,4 @@
-import { DebuggerOptions, DebuggerEventExtraInfo } from "../../v3";
+import { DebuggerOptions, DebuggerEventExtraInfo } from "../../v3/index.js";
 
 let uid = 0;
 const pendingCleanupDeps: Dep[] = [];

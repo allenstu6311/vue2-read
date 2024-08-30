@@ -1,5 +1,9 @@
 import { makeMap } from "../../../core/util/index.js";
 
+// export const namespaceMap = {
+
+// }
+
 export const isHTMLTag = makeMap(
   "html,body,base,head,link,meta,style,title," +
     "address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section," +

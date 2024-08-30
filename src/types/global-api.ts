@@ -1,5 +1,5 @@
-import { Component } from "./component";
-import { Config } from "../core/config";
+import { Component } from "./component.js";
+import { Config } from "../core/config.js";
 
 /**
  * @internal

@@ -1,6 +1,6 @@
-import { DebuggerEvent } from "./../v3/debug";
-import VNode from "../core/vdom/vnode";
-import { Component } from "./component";
+import { DebuggerEvent } from "./../v3/debug.js";
+import VNode from "../core/vdom/vnode.js";
+import { Component } from "./component.js";
 
 /**
  * @internal

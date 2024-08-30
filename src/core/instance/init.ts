@@ -8,13 +8,13 @@ import {
   getTagNamespace,
   isReservedTag,
 } from "../../platforms/web/util/element.js";
-import Vue from "./index.js";
+import { initState } from "./state.js";
+import VNode from "../vdom/vnode.js";
 
 let uid = 0;
 
 export function initMixin(Vue: any) {
   Vue.prototype._init = function (options: any) {
-    // console.log("options", options);
     const vm: Component = this;
 
     vm._uid = uid++;
@@ -44,6 +44,8 @@ export function initMixin(Vue: any) {
     initEvents(vm);
     initRender(vm);
     callHook(vm, "beforeCreate", undefined, false /* setContext */);
+    initState(vm);
+    callHook(vm, "created");
   };
 }
 
