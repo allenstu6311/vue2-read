@@ -1,7 +1,7 @@
 import { cached } from "../../core/util/index.js";
 import { compileToFunctions } from "./compiler/index.js";
 import { query } from "./util/index.js";
-
+import { mount } from "../../core/instance/index.js";
 /**
  * 回傳html
  */
@@ -11,9 +11,10 @@ const idToTemplate = cached((id) => {
 });
 
 export function initMount(Vue: any) {
-  const mount: any = Vue.prototype.$mount;
+  // const mount: any = Vue.prototype.$mount;
 
   Vue.prototype.$mount = function (el?: string | Element, hydrating?: boolean) {
+   
     const options = this.$options;
     // console.log("tt", options.render);
     el = el && query(el);
@@ -48,7 +49,6 @@ export function initMount(Vue: any) {
           },
           this
         );
-        // console.log("render", render);
         // console.log("staticRenderFns", staticRenderFns);
         options.render = render;
         options.staticRenderFns = staticRenderFns;

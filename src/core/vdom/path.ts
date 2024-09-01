@@ -21,6 +21,7 @@ export function createPatchFunction(backend: any) {
   const cbs: any = {};
 
   const { modules, nodeOps } = backend;
+  console.log('nodeOps',nodeOps)
 
   for (i = 0; i < hooks.length; ++i) {
     cbs[hooks[i]] = [];
@@ -31,11 +32,42 @@ export function createPatchFunction(backend: any) {
     }
   }
 
+  function emptyNodeAt(elm){
+    return new VNode(nodeOps.tagName(elm).toLowerCase(),{},[],undefined,elm);
+  }
+
   function invokeDestroyHook(vnode) {}
 
+  function createElm(){}
+
+  /**
+   * oldVonde #app
+   */
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
+    // console.log('oldVnode',oldVnode)
+    // console.log('vnode',vnode)
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode);
+      return;
     }
+
+    let isInitialPatch = false;
+    const insertedVnodeQueue:any[] = [];// 插入vnode對列
+
+    if(isUndef(oldVnode)){
+
+    }else{
+      const isRealElement = isDef(oldVnode.nodeType);
+  
+      if(isRealElement){
+        oldVnode = emptyNodeAt(oldVnode);
+        console.log(oldVnode)
+      }
+    }
+
+    const oldElm = oldVnode.elm;
+    const parentElm = nodeOps.parentNode(oldElm);
+
+    createElm()
   };
 }

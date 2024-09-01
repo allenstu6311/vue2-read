@@ -26,14 +26,18 @@ renderMixin(Vue);
 
 // DIY
 initGlobalAPI(Vue);
-initMount(Vue);
 
-Vue.prototype.$mount = function (
+
+export const mount = Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
   return mountComponent(this, el, hydrating);
 };
+
+initMount(Vue);
+
+
 Vue.prototype.__patch__ = patch;
 
 export default Vue as unknown as GlobalAPI;

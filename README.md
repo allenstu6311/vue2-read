@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用 dist 內部的 index.html
 
-目前閱讀到 patch invokeDestroyHook 方法
+目前閱讀到 patch createElm 方法
 
 git reset --hard HEAD
 

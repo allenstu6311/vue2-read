@@ -55,7 +55,9 @@ export type CodegenResult = {
 };
 
 
-
+/**
+ * 生成渲染函數的code
+ */
 export function generate(
   ast: ASTElement | void,
   options: CompilerOptions
@@ -88,12 +90,15 @@ export function genElement(el: ASTElement, state: CodegenState): string {
 
   const children = el.inlineTemplate ? null : genChildren(el, state, true);
 
-  let parentContent = tag + (data ? data : '');
+  // let parentContent = tag + (data ? data : '');
   let chidContent = children ? `,${children}` : ''
 
-  code = `_c(${parentContent}${chidContent})`
-
+  // code = `_c(${parentContent}${chidContent})`
+  // console.log('gen code',code)
   // transformCode(目前無資料)
+
+  code = `_c(${tag}${data? `,${data}`:''}${children ? `,${children}`:''})`
+
   for (let i = 0; i < state.transforms.length; i++) {
     code = state.transforms[i](el, code);
   }
@@ -123,7 +128,7 @@ export function genData(el: ASTElement, state: CodegenState): string {
 
 /**
  * 合成子層表達式
- * @returns '[ _c('p'{staticClass:"h1"},[_v(_s(test))])]'
+ * @returns '[ _c('p',{staticClass:"h1"},[_v(_s(test))])]'
  */
 export function genChildren(
   el: ASTElement,

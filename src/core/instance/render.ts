@@ -7,6 +7,7 @@ import { defineReactive } from "../observer/index.js";
 import { emptyObject, isArray } from "../shared/util.js";
 import { createElement } from "../vdom/create-element.js";
 import VNode, { createEmptyVNode } from "../vdom/vnode.js";
+import { installRenderHelpers } from "./render-helpers/index.js";
 
 export function initRender(vm: Component) {
   vm._vnode = null; // 子樹的根
@@ -47,6 +48,7 @@ export function initRender(vm: Component) {
 export let currentRenderingInstance: Component | null = null;
 
 export function renderMixin(Vue: typeof Component) {
+  installRenderHelpers(Vue.prototype)
   Vue.prototype._render = function (): VNode {
     const vm: Component = this;
     const { render, _parentVnode } = vm.$options;

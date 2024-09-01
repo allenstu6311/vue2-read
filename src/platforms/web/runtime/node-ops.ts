@@ -14,3 +14,17 @@ export function createElement(tagName: string, vnode: VNode): Element {
   }
   return elm;
 }
+
+/**
+ * 返回父節點
+ */
+export function parentNode(node: Node) {
+  return node.parentNode
+}
+
+/**
+ * 返回標籤名稱
+ */
+export function tagName(node: Element): string {
+  return node.tagName
+}
