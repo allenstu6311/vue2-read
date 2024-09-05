@@ -1,8 +1,9 @@
 import { makeMap } from "../../../core/util/index.js";
 
-// export const namespaceMap = {
-
-// }
+export const namespaceMap: any = {
+  svg: "http://www.w3.org/2000/svg",
+  math: "http://www.w3.org/1998/Math/MathML",
+};
 
 export const isHTMLTag = makeMap(
   "html,body,base,head,link,meta,style,title," +

@@ -1,3 +1,4 @@
+import { namespaceMap } from "./../util/element.js";
 import VNode from "../../../core/vdom/vnode.js";
 
 export function createElement(tagName: string, vnode: VNode): Element {
@@ -15,16 +16,28 @@ export function createElement(tagName: string, vnode: VNode): Element {
   return elm;
 }
 
+export function createElementNS(namespace: string, tagName: string): Element {
+  return document.createElementNS(namespaceMap[namespace], tagName);
+}
+
 /**
  * 返回父節點
  */
 export function parentNode(node: Node) {
-  return node.parentNode
+  return node.parentNode;
 }
 
 /**
  * 返回標籤名稱
  */
 export function tagName(node: Element): string {
-  return node.tagName
+  return node.tagName;
+}
+
+export function nextSibling(node: Node) {
+  return node.nextSibling;
+}
+
+export function setStyleScope(node: Element, scopeId: string) {
+  node.setAttribute(scopeId, "");
 }

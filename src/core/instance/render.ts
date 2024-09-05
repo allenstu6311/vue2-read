@@ -48,9 +48,11 @@ export function initRender(vm: Component) {
 export let currentRenderingInstance: Component | null = null;
 
 export function renderMixin(Vue: typeof Component) {
-  installRenderHelpers(Vue.prototype)
+  installRenderHelpers(Vue.prototype);
   Vue.prototype._render = function (): VNode {
     const vm: Component = this;
+
+    //render => with(this) return _c('div',{attrs:{"id":"app"}})...
     const { render, _parentVnode } = vm.$options;
 
     vm.$vnode = _parentVnode!;

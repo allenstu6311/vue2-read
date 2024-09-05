@@ -14,7 +14,6 @@ export function initMount(Vue: any) {
   // const mount: any = Vue.prototype.$mount;
 
   Vue.prototype.$mount = function (el?: string | Element, hydrating?: boolean) {
-   
     const options = this.$options;
     // console.log("tt", options.render);
     el = el && query(el);

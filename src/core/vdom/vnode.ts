@@ -78,6 +78,6 @@ export const createEmptyVNode = (text: string = "") => {
   return node;
 };
 
-export function createTextVNode(val:string | number){
-  return new VNode(undefined,undefined,undefined,String(val));
+export function createTextVNode(val: string | number) {
+  return new VNode(undefined, undefined, undefined, String(val));
 }

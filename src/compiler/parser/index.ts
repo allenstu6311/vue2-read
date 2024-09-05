@@ -178,8 +178,11 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
           : (decodeHTMLCached(text) as string);
       } else if (!children.length) {
         text = "";
+      } else if (whitespaceOption) {
+      } else {
+        // 標籤之間的空格不須被渲染出來
+        text = preserveWhitespace ? " " : "";
       }
-
       if (text) {
         let res;
         let child: ASTNode | undefined;
@@ -193,7 +196,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
             text,
           };
         }
-        //一般文字
+        //處理空白字串
         else if (
           text !== " " ||
           !children.length ||

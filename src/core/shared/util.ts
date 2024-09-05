@@ -126,7 +126,7 @@ export function isTrue(v: any): boolean {
 }
 
 /**
- * 检查给定的值是否被定义(isDefined)
+ * 检查物件不是undefind也不是null
  */
 export function isDef<T>(v: T): v is NonNullable<T> {
   return v !== undefined && v !== null;

@@ -54,7 +54,6 @@ export type CodegenResult = {
   staticRenderFns: Array<string>;
 };
 
-
 /**
  * 生成渲染函數的code
  */
@@ -64,17 +63,16 @@ export function generate(
 ): CodegenResult {
   const state = new CodegenState(options);
 
-
   const code = () => {
     if (!ast) return '_c("div")';
-    if (ast.tag === 'script') return 'null'
+    if (ast.tag === "script") return "null";
     return genElement(ast, state);
-  }
+  };
 
   return {
     render: `with(this){return ${code()}}`,
-    staticRenderFns: state.staticRenderFns
-  }
+    staticRenderFns: state.staticRenderFns,
+  };
 }
 
 export function genElement(el: ASTElement, state: CodegenState): string {
@@ -91,18 +89,18 @@ export function genElement(el: ASTElement, state: CodegenState): string {
   const children = el.inlineTemplate ? null : genChildren(el, state, true);
 
   // let parentContent = tag + (data ? data : '');
-  let chidContent = children ? `,${children}` : ''
+  let chidContent = children ? `,${children}` : "";
 
   // code = `_c(${parentContent}${chidContent})`
   // console.log('gen code',code)
   // transformCode(目前無資料)
 
-  code = `_c(${tag}${data? `,${data}`:''}${children ? `,${children}`:''})`
+  code = `_c(${tag}${data ? `,${data}` : ""}${children ? `,${children}` : ""})`;
 
   for (let i = 0; i < state.transforms.length; i++) {
     code = state.transforms[i](el, code);
   }
-  return code //_c('p',{staticClass:"h1"})
+  return code; //_c('p',{staticClass:"h1"})
 }
 
 /**
@@ -112,17 +110,17 @@ export function genElement(el: ASTElement, state: CodegenState): string {
 export function genData(el: ASTElement, state: CodegenState): string {
   let data = "{";
   const dirs = genDirectives(el, state);
-  if (dirs) data += dirs + ','
+  if (dirs) data += dirs + ",";
 
   if (el.attrs) {
-    data += `attrs:${genProps(el.attrs)},`
+    data += `attrs:${genProps(el.attrs)},`;
   }
 
   //modules genData(生成staticClass)
   for (let i = 0; i < state.dataGenFns.length; i++) {
     data += state.dataGenFns[i](el);
   }
-  data = data.replace(/,$/, '') + '}'
+  data = data.replace(/,$/, "") + "}";
   return data; //attrs:{"id":"app"}}
 }
 
@@ -144,27 +142,31 @@ export function genChildren(
     const normalizationType = checkSkip
       ? getNormalizationType(children, state.maybeComponent)
       : 0;
-
     const gen = altGenNode || genNode;
-    return `[${children.map(node => gen(node, state)).join(',')}]${normalizationType ? `,${normalizationType}` : '' }`
+    return `[${children.map((node) => gen(node, state)).join(",")}]${
+      normalizationType ? `,${normalizationType}` : ""
+    }`;
   }
 }
 
 function genNode(node: ASTNode, state: CodegenState): string {
   if (node.type === 1) {
     return genElement(node, state);
+  } else if (node.type === 3) {
+    return "";
   }
-  return genText(node)
+  return genText(node);
 }
 
 /**
  * @returns [_v(_s(test))]
  */
-export function genText(text: ASTText | ASTExpression): string {
-  return `_v(${text.type === 2
-    ? text.expression // 不需要 () 因為已經包裝在 _s() 中
-    : transformSpecialNewlines(JSON.stringify(text.text))
-    })`
+export function genText(text: ASTExpression | ASTText | any): string {
+  return `_v(${
+    text.type === 2
+      ? text.expression // 不需要 () 因為已經包裝在 _s() 中
+      : transformSpecialNewlines(JSON.stringify(text.text))
+  })`;
 }
 
 /**
@@ -184,30 +186,32 @@ function getNormalizationType(
     if (el.type !== 1) continue;
 
     //模板中有v-for或tag為template || slot
-    if (needsNormalization(el) ||
-      (el.ifConditions && el.ifConditions?.some(c => needsNormalization(c.block)))
+    if (
+      needsNormalization(el) ||
+      (el.ifConditions &&
+        el.ifConditions?.some((c) => needsNormalization(c.block)))
     ) {
       res = 2;
       break;
     }
 
     //模板中有v-if
-    if (maybeComponent(el) ||
-      (el.ifConditions && el.ifConditions.some(c => maybeComponent(c.block)))
+    if (
+      maybeComponent(el) ||
+      (el.ifConditions && el.ifConditions.some((c) => maybeComponent(c.block)))
     ) {
-      res = 1
+      res = 1;
     }
   }
-  return res
+  return res;
 }
 
 /**
  * 正規化條件
  */
 function needsNormalization(el: ASTElement): boolean {
-  return el.for !== undefined || el.tag === 'template' || el.tag === 'slot'
+  return el.for !== undefined || el.tag === "template" || el.tag === "slot";
 }
-
 
 // function getStatic(el: ASTElement, state: CodegenState): string {
 //   el.staticProcessed = true;
@@ -223,7 +227,6 @@ function needsNormalization(el: ASTElement): boolean {
 //     })`;
 // }
 
-
 function genDirectives(el: ASTElement, state: CodegenState): string | void {
   const dirs = el.directives;
   if (!dirs) return;
@@ -235,32 +238,31 @@ function genDirectives(el: ASTElement, state: CodegenState): string | void {
  */
 function genProps(props: Array<ASTAttr>): string {
   let staticProps = ``;
-  let dynamicProps = ``
+  let dynamicProps = ``;
 
   for (let i = 0; i < props.length; i++) {
     const prop = props[i];
-    const value = transformSpecialNewlines(prop.value) //"app"
+    const value = transformSpecialNewlines(prop.value); //"app"
 
     if (prop.dynamic) {
-      dynamicProps += `${prop.name},${value},`
+      dynamicProps += `${prop.name},${value},`;
     } else {
-      staticProps += `"${prop.name}":${value},` // "id":"app",
+      staticProps += `"${prop.name}":${value},`; // "id":"app",
     }
   }
 
   staticProps = `{${staticProps.slice(0, -1)}}`; // {"id":"app"} (去掉最後的逗號)
 
   if (dynamicProps) {
-    return `_d(${staticProps},[${dynamicProps.slice(0, 1)}])`
+    return `_d(${staticProps},[${dynamicProps.slice(0, 1)}])`;
   }
 
   return staticProps;
-
 }
 
 /**
  * 避免(\u2028,\u2029)出現意外的換行
  */
 function transformSpecialNewlines(text: string): string {
-  return text.replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')
+  return text.replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 }

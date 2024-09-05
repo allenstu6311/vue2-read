@@ -21,7 +21,7 @@ export function createPatchFunction(backend: any) {
   const cbs: any = {};
 
   const { modules, nodeOps } = backend;
-  console.log('nodeOps',nodeOps)
+  // console.log('nodeOps',nodeOps)
 
   for (i = 0; i < hooks.length; ++i) {
     cbs[hooks[i]] = [];
@@ -32,13 +32,68 @@ export function createPatchFunction(backend: any) {
     }
   }
 
-  function emptyNodeAt(elm){
-    return new VNode(nodeOps.tagName(elm).toLowerCase(),{},[],undefined,elm);
+  function emptyNodeAt(elm) {
+    return new VNode(
+      nodeOps.tagName(elm).toLowerCase(),
+      {},
+      [],
+      undefined,
+      elm
+    );
   }
 
   function invokeDestroyHook(vnode) {}
 
-  function createElm(){}
+  /**
+   * css scoped
+   * 設定作用域
+   */
+  function setScope(vnode) {
+    let i;
+    console.log(vnode.fnScopeId);
+    if (isDef((i = vnode.fnScopeId))) {
+      nodeOps.setStyleScope(vnode.elm, i);
+    } else {
+      let ancetor = vnode;
+
+      while (ancetor) {
+        if (isDef((i = ancetor.context)) && isDef((i = i.$options._scopeId))) {
+          nodeOps.setStyleScope(vnode.elm, i);
+        }
+        ancetor = ancetor.parent;
+      }
+    }
+  }
+
+  function createElm(
+    vnode,
+    insertedVnodeQueue,
+    parentElm?: any,
+    refElm?: any,
+    nested?: any,
+    ownerArray?: any,
+    index?: any
+  ) {
+    // if(isDef(vnode.elm) && isDef(ownerArray)){
+
+    // }
+    const data = vnode.data;
+    const children = vnode.children;
+    const tag = vnode.tag;
+    // console.log("data", data);
+    // console.log("children", children);
+    // console.log("tag", tag);
+
+    if (isDef(tag)) {
+      vnode.elm = vnode.ns
+        ? nodeOps.createElementNS(vnode.ns, tag)
+        : nodeOps.createElement(tag, vnode);
+
+      setScope(vnode);
+    }
+  }
+
+  function createChildren(vnode, children, insertedVnodeQueue) {}
 
   /**
    * oldVonde #app
@@ -52,22 +107,25 @@ export function createPatchFunction(backend: any) {
     }
 
     let isInitialPatch = false;
-    const insertedVnodeQueue:any[] = [];// 插入vnode對列
+    const insertedVnodeQueue: any[] = []; // 插入vnode對列
 
-    if(isUndef(oldVnode)){
-
-    }else{
+    if (isUndef(oldVnode)) {
+    } else {
       const isRealElement = isDef(oldVnode.nodeType);
-  
-      if(isRealElement){
+
+      if (isRealElement) {
         oldVnode = emptyNodeAt(oldVnode);
-        console.log(oldVnode)
       }
     }
 
     const oldElm = oldVnode.elm;
     const parentElm = nodeOps.parentNode(oldElm);
 
-    createElm()
+    createElm(
+      vnode,
+      insertedVnodeQueue,
+      oldElm._leaveCb ? null : parentElm,
+      nodeOps.nextSibling(oldElm)
+    );
   };
 }

@@ -13,6 +13,9 @@ export type CompilerOptions = {
    * @returns
    */
   isReservedTag?: (tag: string) => boolean | undefined;
+  /**
+   * 保留元素之間的空白
+   */
   preserveWhitespace?: boolean; // preserve whitespace between elements? (Deprecated)
   whitespace?: "preserve" | "condense"; // whitespace handling strategy
   optimize?: boolean; // optimize static content?

@@ -9,7 +9,7 @@ type CompiledFunctionResult = {
 };
 
 /**
- * 創造render function 
+ * 創造render function
  */
 function createFunction(code: any, errors: any) {
   try {
@@ -45,12 +45,12 @@ export function createCompileToFunctionFn(compile: Function): Function {
     const compiled = compile(template, options);
 
     const res: any = {};
-    const fnGenErrors: any[] = []
-    res.render = createFunction(compiled.render,fnGenErrors);
-    res.staticRenderFns = compiled.staticRenderFns.map((code:any) => {
-      return createFunction(code, fnGenErrors)
-    })
+    const fnGenErrors: any[] = [];
+    res.render = createFunction(compiled.render, fnGenErrors);
+    res.staticRenderFns = compiled.staticRenderFns.map((code: any) => {
+      return createFunction(code, fnGenErrors);
+    });
 
-    return (cache[key] = res)
+    return (cache[key] = res);
   };
 }
