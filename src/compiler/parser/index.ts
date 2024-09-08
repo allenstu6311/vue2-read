@@ -207,7 +207,6 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
             text,
           };
         }
-
         if (child) {
           children.push(child);
         }

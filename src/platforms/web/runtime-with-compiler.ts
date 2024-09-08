@@ -49,6 +49,7 @@ export function initMount(Vue: any) {
           this
         );
         // console.log("staticRenderFns", staticRenderFns);
+        // console.log('render',render)
         options.render = render;
         options.staticRenderFns = staticRenderFns;
       }

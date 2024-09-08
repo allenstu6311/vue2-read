@@ -124,8 +124,19 @@ export default class Watcher implements DepTarget {
     }
     return value;
   }
+  // 蒐集依賴
+  addDep(dep:Dep) {
 
-  addDep() {}
+    const id = dep.id
+    if (!this.newDepIds.has(id)) {
+      this.newDepIds.add(id)
+      this.newDeps.push(dep)
+      if (!this.depIds.has(id)) {
+        dep.addSub(this)
+      }
+    }
+    // debugger
+  }
   /**
    * 清理依賴項目的蒐集
    */

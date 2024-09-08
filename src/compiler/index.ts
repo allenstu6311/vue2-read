@@ -9,6 +9,7 @@ const baseCompile = function (
 ) {
   //生成AST樹
   const ast = parse(template.trim(), options);
+  // console.log('ast',ast)
   //生成表達函數
   const code = generate(ast, options);
 

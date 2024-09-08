@@ -1,3 +1,4 @@
+import { toString } from "../../shared/util.js";
 import { createTextVNode } from "../../vdom/vnode.js";
 
 /**

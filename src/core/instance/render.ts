@@ -54,21 +54,26 @@ export function renderMixin(Vue: typeof Component) {
 
     //render => with(this) return _c('div',{attrs:{"id":"app"}})...
     const { render, _parentVnode } = vm.$options;
-
     vm.$vnode = _parentVnode!;
 
     const prevInst = currentInstance;
     const prevRenderInst = currentRenderingInstance;
     let vnode;
+    try {
+      setCurrentInstance(vm);
+      currentRenderingInstance = vm;
+      // console.log('vm.$createElement',vm.$createElement)
+      // debugger
+      // 正式渲染vnode fn
+      vnode = render.call(vm._renderProxy, vm.$createElement);
+    } catch (err) {
 
-    setCurrentInstance(vm);
-    currentRenderingInstance = vm;
-    vnode = render.call(vm._renderProxy, vm.$createElement);
-
-    currentRenderingInstance = prevRenderInst;
-    setCurrentInstance(prevInst);
-
-    // 只允許單個節點
+    } finally {
+      currentRenderingInstance = vm;
+      setCurrentInstance(vm);
+    }
+ 
+    // 只允許單個節點 
     if (isArray(vnode) && vnode.length === 1) {
       vnode = vnode[0];
     }

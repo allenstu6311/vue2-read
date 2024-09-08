@@ -234,6 +234,9 @@ export type ASTText = {
   type: 3;
   text: string;
   static?: boolean;
+  /**
+   * 是否為註解
+   */
   isComment?: boolean;
   // 2.4 ssr optimization
   ssrOptimizability?: number;

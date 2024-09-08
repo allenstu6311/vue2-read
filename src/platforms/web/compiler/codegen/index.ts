@@ -83,22 +83,19 @@ export function genElement(el: ASTElement, state: CodegenState): string {
   if (!el.plain || (el.pre && maybeComponent)) {
     data = genData(el, state);
   }
+
   let tag: string | undefined;
   if (!tag) tag = `'${el.tag}'`;
 
   const children = el.inlineTemplate ? null : genChildren(el, state, true);
 
-  // let parentContent = tag + (data ? data : '');
   let chidContent = children ? `,${children}` : "";
-
-  // code = `_c(${parentContent}${chidContent})`
-  // console.log('gen code',code)
-  // transformCode(目前無資料)
 
   code = `_c(${tag}${data ? `,${data}` : ""}${children ? `,${children}` : ""})`;
 
   for (let i = 0; i < state.transforms.length; i++) {
     code = state.transforms[i](el, code);
+
   }
   return code; //_c('p',{staticClass:"h1"})
 }
@@ -143,16 +140,17 @@ export function genChildren(
       ? getNormalizationType(children, state.maybeComponent)
       : 0;
     const gen = altGenNode || genNode;
-    return `[${children.map((node) => gen(node, state)).join(",")}]${
+    return `[${children.map((c) => gen(c, state)).join(",")}]${
       normalizationType ? `,${normalizationType}` : ""
-    }`;
+    }`;;
+    
   }
 }
 
 function genNode(node: ASTNode, state: CodegenState): string {
   if (node.type === 1) {
     return genElement(node, state);
-  } else if (node.type === 3) {
+  } else if (node.type === 3 && node.isComment) {
     return "";
   }
   return genText(node);
@@ -162,11 +160,10 @@ function genNode(node: ASTNode, state: CodegenState): string {
  * @returns [_v(_s(test))]
  */
 export function genText(text: ASTExpression | ASTText | any): string {
-  return `_v(${
-    text.type === 2
+  return `_v(${text.type === 2
       ? text.expression // 不需要 () 因為已經包裝在 _s() 中
       : transformSpecialNewlines(JSON.stringify(text.text))
-  })`;
+    })`;
 }
 
 /**

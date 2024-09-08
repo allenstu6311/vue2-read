@@ -39,35 +39,36 @@ initMount(Vue);
 
 
 Vue.prototype.__patch__ = patch;
-
 export default Vue as unknown as GlobalAPI;
 
-const app = new Vue({
-  props: {
-    "test-test": {
-      type: String,
-      default: "",
-    },
-  },
-  directives: {
-    "todo-focus": function (el, binding) {
-      if (binding.value) {
-        el.focus();
-      }
-    },
-  },
-  data() {
-    return {
-      test: 1,
-    };
-  },
-  methods: {
-    test() {},
-  },
-  watch: {
-    test() {},
-  },
-  mounted() {
-    // console.log(this);
-  },
-}).$mount("#app");
+
+// const app = new Vue({
+//   props: {
+//     "test-test": {
+//       type: String,
+//       default: "",
+//     },
+//   },
+//   directives: {
+//     "todo-focus": function (el, binding) {
+//       if (binding.value) {
+//         el.focus();
+//       }
+//     },
+//   },
+//   data() {
+//     return {
+//       test: 234,
+//       test2: 'test',
+//     };
+//   },
+//   methods: {
+//     test() {},
+//   },
+//   watch: {
+//     test() {},
+//   },
+//   mounted() {
+//     // console.log(this);
+//   },
+// }).$mount("#app");

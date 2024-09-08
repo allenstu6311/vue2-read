@@ -20,9 +20,10 @@ export function proxy(target: Object, sourceKey: string, key: string) {
     return this[sourceKey][key];
   };
   sharedPropertyDefinition.set = function proxySetter(val) {
+
     this[sourceKey][key] = val;
   };
-
+  // 讓vue去監聽資料
   Object.defineProperty(target, key, sharedPropertyDefinition);
 }
 
