@@ -14,33 +14,40 @@ import { query } from "../../platforms/web/util/index.js";
 import { lifecycleMixin, mountComponent } from "./lifecycle.js";
 import { renderMixin } from "./render.js";
 import { patch } from "../../platforms/web/runtime/path.js";
+import {
+  getTagNamespace,
+  isReservedTag,
+} from "../../platforms/web/util/element.js";
+import { eventsMixin } from "./events.js";
 
 function Vue(options: any) {
   this._init(options);
 }
 
-initMixin(Vue);
-stateMixin(Vue);
-lifecycleMixin(Vue);
-renderMixin(Vue);
-
 // DIY
 initGlobalAPI(Vue);
 
+initMixin(Vue);
+stateMixin(Vue);
+eventsMixin(Vue);
+lifecycleMixin(Vue);
+renderMixin(Vue);
 
-export const mount = Vue.prototype.$mount = function (
+export const mount = (Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
   return mountComponent(this, el, hydrating);
-};
+});
 
 initMount(Vue);
 
-
+Vue.config.isReservedTag = isReservedTag;
+Vue.config.getTagNamespace = getTagNamespace;
 Vue.prototype.__patch__ = patch;
-export default Vue as unknown as GlobalAPI;
 
+window.Vue = Vue;
+export default Vue as unknown as GlobalAPI;
 
 // const app = new Vue({
 //   props: {
@@ -59,7 +66,7 @@ export default Vue as unknown as GlobalAPI;
 //   data() {
 //     return {
 //       test: 234,
-//       test2: 'test',
+//       test2: "test",
 //     };
 //   },
 //   methods: {

@@ -8,6 +8,7 @@ import { getCurrentScope } from "../../v3/reactivity/effectScope.js";
 import { popTarget, pushTarget } from "../observer/dep.js";
 import VNode, { createEmptyVNode } from "../vdom/vnode.js";
 import { noop } from "../shared/util.js";
+import { invokeWithErrorHandling } from "../util/error.js";
 
 export let activeInstance: any = null;
 /**
@@ -93,7 +94,14 @@ export function callHook(
   const handlers = vm.$options[hook];
   const info = `${hook} hook`;
 
-  //   if (handlers) {}
+  /**
+   * 調用生命週期
+   */
+  if (handlers) {
+    for (let i = 0, j = handlers.length; i < j; i++) {
+      invokeWithErrorHandling(handlers[i], vm, args || null, vm, info);
+    }
+  }
 
   popTarget();
 }

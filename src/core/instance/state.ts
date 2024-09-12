@@ -15,12 +15,17 @@ const sharedPropertyDefinition = {
   set: noop,
 };
 
+/**
+ * 讓使用者可以使用this得到目標
+ * @param target vm
+ * @param sourceKey
+ * @param key data:{test:1}
+ */
 export function proxy(target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter() {
     return this[sourceKey][key];
   };
   sharedPropertyDefinition.set = function proxySetter(val) {
-
     this[sourceKey][key] = val;
   };
   // 讓vue去監聽資料
@@ -52,7 +57,9 @@ function initData(vm: Component) {
       proxy(vm, `_data`, key);
     }
   }
+
   const ob = observe(data);
+
   ob && ob.vmCount++;
 }
 

@@ -80,7 +80,7 @@ export function observe(
  * 將屬性轉換為響應式，並通知修改
  */
 export function defineReactive(
-  obj: Object | any,
+  obj: Object | any, //vm or data
   key: string,
   val?: any,
   customSetter?: Function | null,
@@ -91,6 +91,7 @@ export function defineReactive(
   const dep = new Dep();
   //例: Object { value: 42, writable: true, enumerable: true, configurable: true }
   const property = Object.getOwnPropertyDescriptor(obj, key);
+
   if (property && property.configurable === false) return;
 
   const getter = property && property.get;
@@ -110,6 +111,7 @@ export function defineReactive(
     configurable: true,
     get: function reactiveGetter() {
       const value = getter ? getter.call(obj) : val;
+
       if (Dep.target) {
         dep.depend({
           target: obj,

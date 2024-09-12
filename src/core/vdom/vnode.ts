@@ -69,7 +69,7 @@ export default class VNode {
 }
 
 /**
- * 創建虛擬DOM
+ * 創建空的虛擬DOM
  */
 export const createEmptyVNode = (text: string = "") => {
   const node = new VNode();

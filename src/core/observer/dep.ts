@@ -14,7 +14,7 @@ export interface DepTarget extends DebuggerOptions {
 export default class Dep {
   static target?: DepTarget | null; //儲存目前正在被依賴收集的目標(它是一個靜態屬性，意味著它是類別層級的共享屬性)
   id: number;
-  subs: Array<DepTarget | null>; //儲存所有訂閱該依賴的目標
+  subs: Array<DepTarget | null>; //儲存所有watcher
   _pending = false; //用來標識當前是否有待清理的訂閱者
 
   constructor() {
@@ -35,12 +35,15 @@ export default class Dep {
       pendingCleanupDeps.push(this); //將目前 Dep 實例新增至待清理佇列中
     }
   }
-  //收集依赖关系
+  /**
+   * 收集依赖关系
+   */
   depend(info?: DebuggerEventExtraInfo) {
     //如果 Dep.target 存在，表示目前有一個依賴需要被收集，就將目前 Dep 實例加入 Dep.target 的依賴中
     if (Dep.target) {
       Dep.target.addDep(this); //收集依賴
       if (info && Dep.target.onTrack) {
+        //追蹤
         Dep.target.onTrack({
           effect: Dep.target,
           ...info,

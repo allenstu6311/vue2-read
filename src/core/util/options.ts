@@ -5,8 +5,11 @@ import { hasSymbol, nativeWatch } from "./env.js";
 import { set } from "../observer/index.js";
 import { ComponentOptions } from "../../types/options.js";
 import { Component } from "../../types/component.js";
-import { ASSET_TYPES } from "../shared/constants.js";
+import { ASSET_TYPES, LIFECYCLE_HOOKS } from "../shared/constants.js";
 
+/**
+ * 合併策略
+ */
 const strats = config.optionMergeStrategies;
 
 strats.el = strats.propsData = function (
@@ -24,8 +27,6 @@ strats.el = strats.propsData = function (
 const defaultStrat = function (parentVal: any, childVal: any): any {
   return childVal === undefined ? parentVal : childVal;
 };
-
-
 
 /**
  *
@@ -78,17 +79,21 @@ function mergeDataOrFn(
       return mergeData(
         isFunction(childVal) ? childVal.call(this, this) : childVal,
         isFunction(parentVal) ? parentVal.call(this, this) : parentVal
-      )
-    }
+      );
+    };
   } else {
     return function mergedInstanceDataFn() {
-      const instanceData = isFunction(childVal) ? childVal.call(vm, vm) : childVal
-      const defaultData = isFunction(parentVal) ? parentVal.call(vm, vm) : parentVal
+      const instanceData = isFunction(childVal)
+        ? childVal.call(vm, vm)
+        : childVal;
+      const defaultData = isFunction(parentVal)
+        ? parentVal.call(vm, vm)
+        : parentVal;
       if (instanceData) {
         return mergeData(instanceData, defaultData);
       }
       return defaultData;
-    }
+    };
   }
 }
 
@@ -106,11 +111,11 @@ function mergeAssets(
     assertObjectType(key, childVal, vm);
     return extend(res, childVal);
   }
-  return res
+  return res;
 }
 
-ASSET_TYPES.forEach(type => {
-  strats[type + 's'] = mergeAssets
+ASSET_TYPES.forEach((type) => {
+  strats[type + "s"] = mergeAssets;
 });
 
 /**
@@ -128,8 +133,8 @@ strats.watch = function (
   if (childVal === nativeWatch) childVal = undefined;
 
   if (!childVal) return Object.create(parentVal || null);
-  assertObjectType(key, childVal, vm)
-  if (!parentVal) return childVal
+  assertObjectType(key, childVal, vm);
+  if (!parentVal) return childVal;
 
   /**
    * 如果合併的資料中有watch同個資料要避免覆蓋，因為到時資料變更同樣要觸發兩邊德watch
@@ -138,18 +143,18 @@ strats.watch = function (
    *    test2:[test()]
    * }
    */
-  const ret: Record<string, any> = {}
+  const ret: Record<string, any> = {};
   extend(ret, parentVal);
   for (const key in childVal) {
     let parent = ret[key];
-    const child = childVal[key]
+    const child = childVal[key];
     if (parent && !isArray(parent)) {
       parent[parent];
     }
-    ret[key] = parent ? parent.concat(child) : isArray(child) ? child : [child]
+    ret[key] = parent ? parent.concat(child) : isArray(child) ? child : [child];
   }
   return ret;
-}
+};
 
 /**
  * data merge
@@ -160,14 +165,54 @@ strats.data = function (
   vm?: Component
 ): Function | null {
   if (!vm) {
-    if (childVal && typeof childVal !== 'function') {
-      return parentVal
+    if (childVal && typeof childVal !== "function") {
+      return parentVal;
     }
-    return mergeDataOrFn(parentVal, childVal)
-
+    return mergeDataOrFn(parentVal, childVal);
   }
-  return mergeDataOrFn(parentVal, childVal, vm)
+  return mergeDataOrFn(parentVal, childVal, vm);
+};
+
+/**
+ * 合併生命週期鉤子
+ */
+export function mergeLifecycleHook(
+  parentVal: Array<Function> | null,
+  childVal: Function | Array<Function> | null
+): Array<Function> | null {
+  let res;
+
+  if (childVal) {
+    if (parentVal) {
+      res = parentVal.concat(childVal);
+    } else if (isArray(childVal)) {
+      res = childVal;
+    } else {
+      res = [childVal];
+    }
+  } else {
+    res = parentVal;
+  }
+
+  return res ? dedupeHooks(res) : res;
 }
+
+/**
+ * 確保生命週期鉤子不被重複添加
+ */
+function dedupeHooks(hook: any) {
+  const res: Array<any> = [];
+  for (let i = 0; i < hook.length; i++) {
+    if (res.indexOf(hook[i]) === -1) {
+      res.push(hook[i]);
+    }
+  }
+  return res;
+}
+
+LIFECYCLE_HOOKS.forEach((hook) => {
+  strats[hook] = mergeLifecycleHook;
+});
 
 /**
  * other merge
@@ -175,22 +220,21 @@ strats.data = function (
 strats.props =
   strats.methods =
   strats.computed =
-  function (
-    parentVal: Object | null | any,
-    childVal: Object | null,
-    vm: Component | null,
-    key: string
-  ): Object | null {
-
-    if (childVal) {
-      assertObjectType(key, childVal, vm);
-      if (!parentVal) return childVal;
-    }
-    const ret = Object.create(parentVal || null);
-    extend(ret, parentVal);
-    if (childVal) extend(ret, childVal);
-    return ret
-  }
+    function (
+      parentVal: Object | null | any,
+      childVal: Object | null,
+      vm: Component | null,
+      key: string
+    ): Object | null {
+      if (childVal) {
+        assertObjectType(key, childVal, vm);
+        if (!parentVal) return childVal;
+      }
+      const ret = Object.create(parentVal || null);
+      extend(ret, parentVal);
+      if (childVal) extend(ret, childVal);
+      return ret;
+    };
 
 /**
  * 確保所有 props 選項語法都標準化為物件格式
@@ -244,7 +288,7 @@ function normalizeDirectives(options: Record<string, any>) {
  */
 function assertObjectType(name: string, value: any, vm: Component | null) {
   if (!isPlainObject(value)) {
-    console.warn(`Invalid value for option "${name}": expected an Object`)
+    console.warn(`Invalid value for option "${name}": expected an Object`);
   }
 }
 
@@ -269,23 +313,22 @@ export function mergeOptions(
   let key;
 
   for (key in parent) {
-    mergeField(key)
+    mergeField(key);
   }
 
   for (key in child) {
     if (!hasOwn(parent, key)) {
-      mergeField(key)
+      mergeField(key);
     }
   }
 
-
-
   function mergeField(key: any) {
-    const strat = strats[key] || defaultStrat
+    const strat = strats[key] || defaultStrat;
     // console.log('key',key)
     // console.log('child',child[key])
 
-    options[key] = strat(parent[key], child[key], vm, key)
+    options[key] = strat(parent[key], child[key], vm, key);
   }
+
   return options;
 }

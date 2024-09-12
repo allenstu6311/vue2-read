@@ -72,8 +72,8 @@ export function renderMixin(Vue: typeof Component) {
       currentRenderingInstance = vm;
       setCurrentInstance(vm);
     }
- 
-    // 只允許單個節點 
+
+    // 只允許單個節點
     if (isArray(vnode) && vnode.length === 1) {
       vnode = vnode[0];
     }

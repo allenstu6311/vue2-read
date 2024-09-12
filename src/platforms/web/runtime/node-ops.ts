@@ -1,6 +1,10 @@
 import { namespaceMap } from "./../util/element.js";
 import VNode from "../../../core/vdom/vnode.js";
 
+/**
+ * 創建真實的DOM
+ * @returns DOM
+ */
 export function createElement(tagName: string, vnode: VNode): Element {
   const elm = document.createElement(tagName);
   if (tagName !== "select") return elm;
@@ -39,15 +43,15 @@ export function nextSibling(node: Node) {
 }
 
 export function appendChild(node: Node, child: Node) {
-  node.appendChild(child)
+  node.appendChild(child);
 }
 
-export function removeChild(node:Node,child:Node){
+export function removeChild(node: Node, child: Node) {
   node.removeChild(child);
 }
 
 export function createTextNode(text: string): Text {
-  return document.createTextNode(text)
+  return document.createTextNode(text);
 }
 
 export function inserBefore(

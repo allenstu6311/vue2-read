@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { EffectScope } from "../../v3/reactivity/effectScope.js";
 import { mergeOptions } from "../util/options.js";
 import type { Component } from "../../types/component.js";
@@ -16,7 +17,6 @@ let uid = 0;
 export function initMixin(Vue: any) {
   Vue.prototype._init = function (options: any) {
     const vm: Component = this;
-
     vm._uid = uid++;
     vm._isVue = true;
     vm._scope = new EffectScope();
@@ -37,9 +37,6 @@ export function initMixin(Vue: any) {
     vm._renderProxy = vm; // 之後考慮用proxy
     vm._self = vm;
 
-    Vue.config.isReservedTag = isReservedTag;
-    Vue.config.getTagNamespace = getTagNamespace;
-
     initLifecycle(vm);
     initEvents(vm);
     initRender(vm);
@@ -49,7 +46,7 @@ export function initMixin(Vue: any) {
   };
 }
 
-export function resolveConstructorOptions(Ctor: any) {
+export function resolveConstructorOptions(Ctor: Component) {
   let options = Ctor.options;
 
   return options;

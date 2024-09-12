@@ -27,7 +27,7 @@ export function isResvered(str: string): boolean {
 }
 
 /**
- * 定義一個屬性
+ * 響應式一個屬性
  */
 export function def(obj: Object, key: string, val: any, enumerable?: boolean) {
   Object.defineProperty(obj, key, {

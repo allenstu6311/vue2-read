@@ -15,14 +15,12 @@ import VNode, { createEmptyVNode } from "./vnode.js";
 const ALWAYS_NORMALIZE = 2;
 
 /**
- *
  * @param context vm
  * @param tag html tag
  * @param data //event attr || vNode
  * @param children
  * @param normalizationType
  * @param alwaysNormalize
- * @returns
  */
 export function createElement(
   context: Component,
@@ -41,6 +39,7 @@ export function createElement(
   if (isTrue(alwaysNormalize)) {
     normalizationType = ALWAYS_NORMALIZE;
   }
+
   return _createElement(context, tag, data, children, normalizationType);
 }
 
@@ -84,11 +83,14 @@ export function _createElement(
       registerDeepBindings(data);
     }
     return vnode;
-  } else {
-    return createEmptyVNode();
   }
+  return createEmptyVNode();
 }
 
+/**
+ * :class={XX:true}
+ * :style={XX:true}
+ */
 function registerDeepBindings(data: any) {
   if (isObject(data.style)) {
     traverse(data.style);

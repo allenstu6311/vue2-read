@@ -19,7 +19,10 @@ const hooks = ["create", "activate", "update", "remove", "destroy"];
 export function createPatchFunction(backend: any) {
   let i, j;
   /**
-   * 集合所有的回掉函數
+   * 集合所有的回調函數
+   * updateAttrs
+   * updateClass
+   * updateDirective
    */
   const cbs: any = {};
 
@@ -35,8 +38,9 @@ export function createPatchFunction(backend: any) {
       }
     }
   }
-  // console.log('cbs',cbs)
-
+  /**
+   * dom => vdom
+   */
   function emptyNodeAt(elm) {
     return new VNode(
       nodeOps.tagName(elm).toLowerCase(),
@@ -47,7 +51,7 @@ export function createPatchFunction(backend: any) {
     );
   }
 
-  function invokeDestroyHook(vnode) { }
+  function invokeDestroyHook(vnode) {}
 
   /**
    * css scoped
@@ -69,6 +73,12 @@ export function createPatchFunction(backend: any) {
     }
   }
 
+  /**
+   * 調用以下函數創建標籤內容
+   * updateAttrs
+   * updateClass
+   * updateDirective
+   */
   function invokeCreateHooks(vnode, insertedVnodeQueue) {
     for (let i = 0; i < cbs.create.length; i++) {
       cbs.create[i](emptyNode, vnode);
@@ -80,7 +90,7 @@ export function createPatchFunction(backend: any) {
     vnode,
     insertedVnodeQueue,
     parentElm?: any,
-    refElm?: any,
+    refElm?: any, //相鄰的節點
     nested?: any,
     ownerArray?: any,
     index?: any
@@ -96,14 +106,15 @@ export function createPatchFunction(backend: any) {
     // console.log("tag", tag);
 
     if (isDef(tag)) {
+      // ns=>是否為svg或xml等特殊標籤
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
-        : nodeOps.createElement(tag, vnode);
+        : nodeOps.createElement(tag, vnode); // 創建真實DOM
 
       setScope(vnode);
       createChildren(vnode, children, insertedVnodeQueue);
       if (isDef(data)) {
-        invokeCreateHooks(vnode, insertedVnodeQueue)
+        invokeCreateHooks(vnode, insertedVnodeQueue);
       }
 
       insert(parentElm, vnode.elm, refElm);
@@ -114,7 +125,6 @@ export function createPatchFunction(backend: any) {
   }
 
   function createChildren(vnode, children, insertedVnodeQueue) {
-    // console.log('children',children)
     if (isArray(children)) {
       for (let i = 0; i < children.length; i++) {
         createElm(
@@ -125,16 +135,20 @@ export function createPatchFunction(backend: any) {
           true,
           children,
           i
-        )
+        );
       }
     } else if (isPrimitive(vnode.text)) {
-      nodeOps.appenChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)))
+      nodeOps.appenChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)));
     }
   }
 
-
+  /**
+   * 插入節點
+   * @param parent
+   * @param elm 標籤內容
+   * @param ref 相鄰節點
+   */
   function insert(parent, elm, ref) {
-    // console.log('parent',parent)
     if (isDef(parent)) {
       if (isDef(ref)) {
         if (nodeOps.parentNode(ref) === parent) {
@@ -163,24 +177,22 @@ export function createPatchFunction(backend: any) {
     const parent = nodeOps.parentNode(el);
     // 有可能b-html或v-text已被刪除
     if (isDef(parent)) {
-      nodeOps.removeChild(parent, el)
+      nodeOps.removeChild(parent, el);
     }
   }
-
 
   function removeVnodes(vnodes, startIdx, endIdx) {
     for (; startIdx <= endIdx; ++startIdx) {
       const ch = vnodes[startIdx];
       if (isDef(ch)) {
         if (isDef(ch.tag)) {
-          removeAndInvokeRemoveHook(ch)
+          removeAndInvokeRemoveHook(ch);
         }
       }
     }
   }
 
   function removeAndInvokeRemoveHook(vnode, rm?: any) {
-
     if (isDef(rm) || isDef(vnode.data)) {
       let i;
       const listeners = cbs.remove.length + 1;
@@ -192,14 +204,14 @@ export function createPatchFunction(backend: any) {
       }
 
       for (let i = 0; i < cbs.remove.length; i++) {
-        cbs.remove[i](vnode, rm)
+        cbs.remove[i](vnode, rm);
       }
 
-      if (isDef(i = vnode.data.hook) && isDef(i = i.remove)) {
+      if (isDef((i = vnode.data.hook)) && isDef((i = i.remove))) {
         i(vnode, rm);
       } else {
         // 移除舊節點
-        rm()
+        rm();
       }
     }
   }
@@ -208,7 +220,7 @@ export function createPatchFunction(backend: any) {
    * oldVonde #app
    */
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
-    // console.log('oldVnode',oldVnode)
+    // console.log("oldVnode", oldVnode);
     // console.log('vnode',vnode)
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode);
@@ -223,6 +235,7 @@ export function createPatchFunction(backend: any) {
       const isRealElement = isDef(oldVnode.nodeType);
 
       if (isRealElement) {
+        // dom => vdom
         oldVnode = emptyNodeAt(oldVnode);
       }
     }
@@ -241,6 +254,6 @@ export function createPatchFunction(backend: any) {
       removeVnodes([oldVnode], 0, 0);
     }
 
-    return vnode.elm
+    return vnode.elm;
   };
 }

@@ -16,6 +16,9 @@ export interface Config {
   keyCodes: { [key: string]: number | Array<number> };
 
   // platform
+  /**
+   * 判斷是否為HTML標籤或SVG標籤
+   */
   isReservedTag: (x: string) => boolean | undefined | any;
   isReservedAttr: (x: string) => true | undefined;
   parsePlatformTagName: (x: string) => string;
