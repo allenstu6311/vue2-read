@@ -167,3 +167,16 @@ function replacer(_key: string, val: any): any {
   return val
 }
 
+/**
+ * 綁定函數執行上下文
+ * @param fn method
+ * @param ctx vm
+ * @returns method
+ */
+function nativeBind(fn: Function, ctx: Object): Function {
+  return fn.bind(ctx)
+}
+
+// @ts-expect-error bind cannot be `undefined`
+export const bind = Function.prototype.bind ? nativeBind : noop
+

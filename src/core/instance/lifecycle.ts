@@ -61,7 +61,11 @@ export function mountComponent(
   };
 
   const watcherOptions: WatcherOptions = {
-    before() {},
+    before() {
+      if (vm._isMounted && !vm._isDestroyed) {
+        callHook(vm, 'beforeUpdate')
+      }
+    },
   };
 
   new Watcher(

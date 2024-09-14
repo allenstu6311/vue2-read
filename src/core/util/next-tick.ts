@@ -1,0 +1,1 @@
+export function nextTick(cb?: (...args: any[]) => any, ctx?: object){}

@@ -6,7 +6,7 @@ export interface DebuggerOptions {
 }
 
 export type DebuggerEventExtraInfo = {
-  target: object;
+  target: object; // vm.data
   type: TrackOpTypes | TriggerOpTypes;
   key?: any;
   newValue?: any;

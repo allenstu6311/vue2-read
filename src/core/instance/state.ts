@@ -4,6 +4,7 @@ import { popTarget, pushTarget } from "../observer/dep.js";
 import { observe, set } from "../observer/index.js";
 import { hasOwn, isFunction, isPlainObject, noop } from "../shared/util.js";
 import { isResvered } from "../util/lang.js";
+import { bind } from "../shared/util.js";
 
 /**
  * 共享屬性描述
@@ -35,8 +36,16 @@ export function proxy(target: Object, sourceKey: string, key: string) {
 export function initState(vm: Component) {
   const opts = vm.$options;
 
+  if(opts.methods) iniMethods(vm,opts.methods)
   if (opts.data) {
     initData(vm);
+  }
+}
+
+function iniMethods(vm:Component,methods:Object){
+  const props = vm.$options.props;
+  for(const key in methods){
+    vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key],vm);
   }
 }
 

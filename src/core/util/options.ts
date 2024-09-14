@@ -329,6 +329,5 @@ export function mergeOptions(
 
     options[key] = strat(parent[key], child[key], vm, key);
   }
-
   return options;
 }

@@ -7,6 +7,7 @@ import {
 } from "../../v3/reactivity/effectScope.js";
 
 import { isFunction, parsePath } from "../util/index.js";
+import { queueWatcher } from "./scheduler.js";
 /**
  * @internal
  */
@@ -70,7 +71,7 @@ export default class Watcher implements DepTarget {
     if ((this.vm = vm) && isRenderWatcher) {
       vm._watcher = this;
     }
-    if (options) {
+    if (options) {      
       this.deep = !!options.deep;
       this.user = !!options.user;
       this.lazy = !!options.lazy;
@@ -110,6 +111,7 @@ export default class Watcher implements DepTarget {
     try {
       //.call(第一個是執行環境，第二個是funcion的參數)
       value = this.getter.call(vm, vm);
+
       // console.log("value", value);
     } catch (e) {
       if (this.user) {
@@ -141,8 +143,18 @@ export default class Watcher implements DepTarget {
    * 清理依賴項目的蒐集
    */
   cleanupDeps() {}
-  update() {}
-  run() {}
+  update() {
+    if(this.lazy){
+      this.dirty = true;
+    }else if(this.sync){
+      this.run();
+    }else{
+      queueWatcher(this);
+    }
+  }
+  run() {
+    this.get();
+  }
   evaluate() {}
   depend() {}
   teardown() {}

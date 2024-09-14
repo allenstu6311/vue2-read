@@ -51,7 +51,10 @@ export default class Dep {
       }
     }
   }
-  // 通知所有訂閱者數據變化
+  /**
+   * 通知所有訂閱者數據變化
+   * @param info 
+   */
   notify(info?: DebuggerEventExtraInfo) {
     const subs = this.subs.filter((s) => s) as DepTarget[];
     subs.sort((a, b) => a.id - b.id); //确保通知顺序
@@ -59,11 +62,11 @@ export default class Dep {
     for (let i = 0; i < l; i++) {
       const sub = subs[i];
       if (info) {
-        sub.onTrigger &&
-          sub.onTrigger({
-            effect: subs[i],
-            ...info,
-          });
+        // sub.onTrigger &&
+        //   sub.onTrigger({
+        //     effect: subs[i],
+        //     ...info,
+        //   });
       }
       sub.update();
     }

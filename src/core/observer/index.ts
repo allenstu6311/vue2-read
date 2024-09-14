@@ -132,7 +132,7 @@ export function defineReactive(
       if (setter) setter.call(obj, newVal);
       else if (getter) return;
       else val = newVal;
-
+      
       dep.notify({
         type: TriggerOpTypes.SET,
         target: obj,
