@@ -24,10 +24,10 @@ function transformNode(el: ASTElement, options: CompilerOptions) {
 function genData(el: ASTElement): string {
   let data = "";
   if (el.staticClass) {
-    data += `staticClass:${el.staticClass}`;
+    data += `staticClass:${el.staticClass},`;
   }
   if (el.classBinding) {
-    data += `class:${el.classBinding}`;
+    data += `class:${el.classBinding},`;
   }
   return data;
 }

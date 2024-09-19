@@ -72,6 +72,9 @@ export type ModuleOptions = {
   staticKeys?: Array<string>; // AST properties to be considered static
 };
 
+/**
+ * 事件屬性(once,stop...)
+ */
 export type ASTModifiers = { [key: string]: boolean };
 
 /**

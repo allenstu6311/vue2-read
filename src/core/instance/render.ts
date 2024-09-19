@@ -55,6 +55,7 @@ export function renderMixin(Vue: typeof Component) {
     //render => with(this) return _c('div',{attrs:{"id":"app"}})...
     const { render, _parentVnode } = vm.$options;
     vm.$vnode = _parentVnode!;
+    console.log("render", render);
 
     const prevInst = currentInstance;
     const prevRenderInst = currentRenderingInstance;
@@ -65,9 +66,10 @@ export function renderMixin(Vue: typeof Component) {
       // console.log('vm.$createElement',vm.$createElement)
       // debugger
       // 正式渲染vnode fn
+
       vnode = render.call(vm._renderProxy, vm.$createElement);
     } catch (err) {
-
+      console.log("renderMixin err", err);
     } finally {
       currentRenderingInstance = vm;
       setCurrentInstance(vm);

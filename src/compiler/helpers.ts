@@ -1,4 +1,5 @@
-import { ASTElement } from "../types/compiler.js";
+import { emptyObject } from "../core/shared/util.js";
+import { ASTElement, ASTModifiers } from "../types/compiler.js";
 import { parseFilters } from "./parser/filter-parser.js";
 
 type Range = { start?: number; end?: number };
@@ -25,6 +26,7 @@ export function getAndRemoveAttr(
   removeFromMap?: boolean
 ): string | undefined {
   let val;
+
   // 如果属性存在于 attrsMap 中，获取其值
   if ((val = el.attrsMap[name]) != null) {
     const list = el.attrsList;
@@ -90,4 +92,38 @@ function rangeSetItem(item: any, range?: { start?: number; end?: number }) {
   }
 
   return item; // { name:'id',value:'app'}
+}
+
+/**
+ * 增加事件處理
+ * @param el
+ * @param name 事件類型(click..)
+ * @param value 事件名稱(fn())
+ * @param modifiers 事件屬性(.once,.stop)
+ * @param important
+ * @param range
+ * @param dynamic
+ */
+export function addHandler(
+  el: ASTElement,
+  name: string,
+  value: string,
+  modifiers?: ASTModifiers | null,
+  important?: boolean,
+  warn?: Function,
+  range?: Range,
+  dynamic?: boolean
+) {
+  modifiers = modifiers || emptyObject;
+
+  let events: any;
+  if (modifiers.native) {
+  } else {
+    events = el.events || (el.events = {});
+  }
+
+  const newHandler: any = rangeSetItem({ value: value.trim(), dynamic }, range);
+
+  events[name] = newHandler;
+  el.plain = false;
 }
