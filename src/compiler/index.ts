@@ -1,4 +1,4 @@
-import { generate } from "../platforms/web/compiler/codegen/index.js";
+import { generate } from "./codegen/index.js";
 import { CompilerOptions } from "../types/compiler.js";
 import { createCompilerCreator } from "./create-compiler.js";
 import { parse } from "./parser/index.js";
@@ -9,9 +9,10 @@ const baseCompile = function (
 ) {
   //生成AST樹
   const ast = parse(template.trim(), options);
-  // console.log('ast',ast)
+  // console.log("ast", ast);
   //生成表達函數
   const code = generate(ast, options);
+  // console.log("createCompilerCreator code", code);
 
   return {
     ast,

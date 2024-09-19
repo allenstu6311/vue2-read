@@ -1,5 +1,5 @@
-import { baseWarn, pluckModuleFunction } from "../../../../compiler/helpers.js";
-import { extend, no } from "../../../../core/shared/util.js";
+import { baseWarn, pluckModuleFunction } from "../helpers.js";
+import { extend, no } from "../../core/shared/util.js";
 import {
   ASTAttr,
   ASTDirective,
@@ -9,8 +9,9 @@ import {
   ASTText,
   CompiledResult,
   CompilerOptions,
-} from "../../../../types/compiler.js";
-import baseDirective from "../directives/index.js";
+} from "../../types/compiler.js";
+import baseDirective from "../../platforms/web/compiler/directives/index.js";
+import { genHandlers } from "./events.js";
 
 type TransformFunction = (el: ASTElement, code: string) => string;
 type DataGenFunction = (el: ASTElement) => string;
@@ -76,28 +77,58 @@ export function generate(
 }
 
 export function genElement(el: ASTElement, state: CodegenState): string {
-  let code;
-  let data;
-  const maybeComponent = state.maybeComponent(el);
-  //是否為不需要處理的元素或component or pre
-  if (!el.plain || (el.pre && maybeComponent)) {
-    data = genData(el, state);
+  if (el.parent) {
+    el.pre = el.pre || el.parent.pre;
   }
 
-  let tag: string | undefined;
-  if (!tag) tag = `'${el.tag}'`;
+  if (el.for && !el.forProcessed) {
+    return genFor(el, state);
+  } else {
+    let code;
+    let data;
+    const maybeComponent = state.maybeComponent(el);
+    //是否為不需要處理的元素或component or pre
+    if (!el.plain || (el.pre && maybeComponent)) {
+      data = genData(el, state);
+    }
 
-  const children = el.inlineTemplate ? null : genChildren(el, state, true);
+    let tag: string | undefined;
+    if (!tag) tag = `'${el.tag}'`;
 
-  let chidContent = children ? `,${children}` : "";
+    const children = el.inlineTemplate ? null : genChildren(el, state, true);
 
-  code = `_c(${tag}${data ? `,${data}` : ""}${children ? `,${children}` : ""})`;
+    let chidContent = children ? `,${children}` : "";
 
-  for (let i = 0; i < state.transforms.length; i++) {
-    code = state.transforms[i](el, code);
+    code = `_c(${tag}${data ? `,${data}` : ""}${
+      children ? `,${children}` : ""
+    })`;
 
+    for (let i = 0; i < state.transforms.length; i++) {
+      code = state.transforms[i](el, code);
+    }
+    return code; //_c('p',{staticClass:"h1"})
   }
-  return code; //_c('p',{staticClass:"h1"})
+}
+
+export function genFor(
+  el: any,
+  state: CodegenState,
+  altGen?: Function,
+  altHelper?: string
+) {
+  const exp = el.for;
+  const alias = el.alias;
+  const iterator1 = el.iterator1 ? `,${el.iterator1}` : "";
+  const iterator2 = el.iterator2 ? `,${el.iterator2}` : "";
+
+  el.forProcessed = true; // avoid recursion
+
+  return (
+    `${altHelper || "_l"}((${exp}),` +
+    `function(${alias}${iterator1}${iterator2}){` +
+    `return ${(altGen || genElement)(el, state)}` +
+    `})`
+  );
 }
 
 /**
@@ -109,15 +140,22 @@ export function genData(el: ASTElement, state: CodegenState): string {
   const dirs = genDirectives(el, state);
   if (dirs) data += dirs + ",";
 
+  // compiler/class.ts genData(生成staticClass)
+  for (let i = 0; i < state.dataGenFns.length; i++) {
+    data += state.dataGenFns[i](el);
+  }
+
   if (el.attrs) {
     data += `attrs:${genProps(el.attrs)},`;
   }
 
-  //modules genData(生成staticClass)
-  for (let i = 0; i < state.dataGenFns.length; i++) {
-    data += state.dataGenFns[i](el);
+  // event handlers
+  if (el.events) {
+    data += `${genHandlers(el.events, false)},`;
   }
+
   data = data.replace(/,$/, "") + "}";
+
   return data; //attrs:{"id":"app"}}
 }
 
@@ -135,15 +173,30 @@ export function genChildren(
   const children = el.children;
   if (children.length) {
     const el: any = children[0];
+
+    if (
+      children.length === 1 &&
+      el.for &&
+      el.tag !== "template" &&
+      el.tag !== "slot"
+    ) {
+      const normalizationType = checkSkip
+        ? state.maybeComponent(el)
+          ? `,1`
+          : `,0`
+        : ``;
+      return `${(altGenElement || genElement)(el, state)}${normalizationType}`;
+    }
+
     //正規化類型
     const normalizationType = checkSkip
       ? getNormalizationType(children, state.maybeComponent)
       : 0;
+
     const gen = altGenNode || genNode;
     return `[${children.map((c) => gen(c, state)).join(",")}]${
       normalizationType ? `,${normalizationType}` : ""
-    }`;;
-    
+    }`;
   }
 }
 
@@ -160,10 +213,11 @@ function genNode(node: ASTNode, state: CodegenState): string {
  * @returns [_v(_s(test))]
  */
 export function genText(text: ASTExpression | ASTText | any): string {
-  return `_v(${text.type === 2
+  return `_v(${
+    text.type === 2
       ? text.expression // 不需要 () 因為已經包裝在 _s() 中
       : transformSpecialNewlines(JSON.stringify(text.text))
-    })`;
+  })`;
 }
 
 /**

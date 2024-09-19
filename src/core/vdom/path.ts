@@ -11,7 +11,7 @@
  */
 //@ts-nocheck
 import { isArray, isDef, isPrimitive, isUndef } from "../util/index.js";
-import VNode from "./vnode.js";
+import VNode, { cloneVNode } from "./vnode.js";
 
 export const emptyNode = new VNode("", {}, []);
 const hooks = ["create", "activate", "update", "remove", "destroy"];
@@ -38,6 +38,7 @@ export function createPatchFunction(backend: any) {
       }
     }
   }
+
   /**
    * dom => vdom
    */
@@ -95,9 +96,10 @@ export function createPatchFunction(backend: any) {
     ownerArray?: any,
     index?: any
   ) {
-    // if(isDef(vnode.elm) && isDef(ownerArray)){
+    if (isDef(vnode.elm) && isDef(ownerArray)) {
+      vnode = ownerArray[index] = cloneVNode(vnode);
+    }
 
-    // }
     const data = vnode.data;
     const children = vnode.children;
     const tag = vnode.tag;
@@ -221,7 +223,7 @@ export function createPatchFunction(backend: any) {
    */
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
     // console.log("oldVnode", oldVnode);
-    // console.log('vnode',vnode)
+    // console.log("vnode", vnode);
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode);
       return;

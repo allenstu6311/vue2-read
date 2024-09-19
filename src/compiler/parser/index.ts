@@ -5,13 +5,33 @@ import {
   ASTNode,
   CompilerOptions,
 } from "../../types/compiler.js";
-import { cached, no } from "../../core/util/index.js";
-import { addAttr, getBindingAttr, pluckModuleFunction } from "../helpers.js";
+import { cached, extend, no } from "../../core/util/index.js";
+import {
+  addAttr,
+  addHandler,
+  getBindingAttr,
+  pluckModuleFunction,
+} from "../helpers.js";
 import { parseHTML } from "./html-parser.js";
 import { getAndRemoveAttr } from "../helpers.js";
 import { parseText } from "./text-parser.js";
-
+/**
+ * 解析@,v-bind事件
+ */
 export const dirRE = false ? /^v-|^@|^:|^\.|^#/ : /^v-|^@|^:|^#/;
+/**
+ * @click.once
+ */
+const modifierRE = /\.[^.\]]+(?=[^\]]*$)/g;
+export const bindRE = /^:|^\.|^v-bind:/;
+export const onRE = /^@|^v-on:/;
+const dynamicArgRE = /^\[.*\]$/;
+/**
+ * v-for regular
+ */
+export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+export const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+const stripParensRE = /^\(|\)$/g;
 const decodeHTMLCached = cached(he.decode);
 
 let delimiters: any;
@@ -119,6 +139,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
      */
     start(tag, attrs, unary, start, end) {
       let element: ASTElement = createASTElement(tag, attrs, currentParent);
+      // console.log("start", JSON.parse(JSON.stringify(element)));
 
       // 處理input v-model
       for (let i = 0; i < preTransforms.length; i++) {
@@ -138,8 +159,9 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
 
       if (inVPre) {
         // 暫時先不測試
-      } else {
+      } else if (!element.processed) {
         // v-for,v-if邏輯
+        processFor(element);
       }
       //如果当前是第一个开始节点，就将 root 赋值
       if (!root) {
@@ -171,7 +193,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
 
       //是否為v-pre以及判斷是否為空白字串
       if (inPre || text.trim()) {
-        // console.log(text);
+        // console.log(text)
         // {{ test }}
         text = isTextTag(currentParent)
           ? text
@@ -238,7 +260,8 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
   // ref
   // slot
   // component
-  //transformNode(取得class)
+
+  //transformNode(轉換class) class.ts
   for (let i = 0; i < transforms.length; i++) {
     element = transforms[i](element, options) || element;
   }
@@ -259,18 +282,112 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
   function processAttrs(el: any) {
     const list: Array<ASTAttr> = el.attrsList;
 
-    let i, l, name, rawName, value, modifiers, syncGen, isDynamic;
+    let i,
+      l,
+      name,
+      rawName,
+      value,
+      modifiers: Object, //事件屬性(once,stop...)
+      syncGen,
+      isDynamic;
 
     for (i = 0; i < list.length; i++) {
       name = rawName = list[i].name; // attr key (id)
       value = list[i].value; // attr val (app)
-
+      // 有@事件時觸發
       if (dirRE.test(name)) {
-        // 有@,#事件時觸發
+        // 標記元素為動態
+        el.hasBindings = true;
+        // 取得once stop....
+        modifiers = parseModifiers();
+
+        if (bindRE.test(name)) {
+          // v-bind
+        } else if (onRE.test(name)) {
+          // v-on || @
+          name = name.replace(onRE, ""); //click || change
+          isDynamic = dynamicArgRE.test(name) as Boolean;
+
+          addHandler(
+            el,
+            name,
+            value,
+            modifiers,
+            false,
+            console.warn,
+            list[i],
+            isDynamic
+          );
+        }
       } else {
         addAttr(el, name, JSON.stringify(value), list[i]);
       }
     }
+  }
+}
+
+/**
+ * handler v-for
+ */
+export function processFor(el: ASTElement) {
+  let exp;
+
+  if ((exp = getAndRemoveAttr(el, "v-for"))) {
+    const res = parserFor(exp);
+
+    if (res) {
+      /**
+       * 將for,alias合併進入el
+       */
+      extend(el, res);
+    }
+  }
+}
+
+type ForParseResult = {
+  for: string; //data
+  alias: string; //item
+  iterator1?: string;
+  iterator2?: string;
+};
+
+export function parserFor(exp: string): ForParseResult | undefined {
+  /**
+   * 0:item in arr
+   * 1:item || (item,index)
+   * 2:arr
+   * groups:undefind
+   * index:0
+   * input:item in arr
+   */
+  const inMatch = exp.match(forAliasRE);
+  if (!inMatch) return;
+  const res: any = {};
+  res.for = inMatch[2].trim();
+  const alias = inMatch[1].trim().replace(stripParensRE, "");
+  /**
+   * 需使用兩個以上的變量才會有值
+   * 例:(item,index)
+   */
+  const iteratorMatch = alias.match(forIteratorRE);
+  if (iteratorMatch) {
+  } else {
+    res.alias = alias;
+  }
+  return res;
+}
+
+/**
+ * @click.once || @click.stop
+ */
+function parseModifiers() {
+  const match = name.match(modifierRE);
+  if (match) {
+    const ret = {};
+    match.forEach((m) => {
+      ret[m.slice(1)] = true;
+    });
+    return ret;
   }
 }
 

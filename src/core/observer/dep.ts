@@ -2,6 +2,11 @@ import { DebuggerOptions, DebuggerEventExtraInfo } from "../../v3/index.js";
 
 let uid = 0;
 const pendingCleanupDeps: Dep[] = [];
+
+/**
+ * 清除不再需要的訂閱者
+ */
+export const cleanupDeps = () => {};
 export interface DepTarget extends DebuggerOptions {
   id: number;
   addDep(dep: Dep): void;
@@ -53,7 +58,7 @@ export default class Dep {
   }
   /**
    * 通知所有訂閱者數據變化
-   * @param info 
+   * @param info
    */
   notify(info?: DebuggerEventExtraInfo) {
     const subs = this.subs.filter((s) => s) as DepTarget[];
@@ -68,6 +73,7 @@ export default class Dep {
         //     ...info,
         //   });
       }
+      // 更新畫面
       sub.update();
     }
   }

@@ -41,7 +41,10 @@ export default class Watcher implements DepTarget {
   newDeps: Array<Dep>;
   depIds: SimpleSet;
   newDepIds: SimpleSet;
-  before?: Function; //在watch callback函數觸發回調之前執行的函數
+  /**
+   * 生命週期beforeUpdate
+   */
+  before?: Function;
   onStop?: Function; //watch被停止時調用(destory時觸發)
   noRecurse?: boolean;
   getter: Function;
@@ -71,7 +74,7 @@ export default class Watcher implements DepTarget {
     if ((this.vm = vm) && isRenderWatcher) {
       vm._watcher = this;
     }
-    if (options) {      
+    if (options) {
       this.deep = !!options.deep;
       this.user = !!options.user;
       this.lazy = !!options.lazy;
@@ -143,15 +146,21 @@ export default class Watcher implements DepTarget {
    * 清理依賴項目的蒐集
    */
   cleanupDeps() {}
+  /**
+   * 同步畫面資料(初始化不會觸發)
+   */
   update() {
-    if(this.lazy){
+    if (this.lazy) {
       this.dirty = true;
-    }else if(this.sync){
+    } else if (this.sync) {
       this.run();
-    }else{
+    } else {
       queueWatcher(this);
     }
   }
+  /**
+   * 同步資料與畫面
+   */
   run() {
     this.get();
   }
