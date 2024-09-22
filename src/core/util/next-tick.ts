@@ -8,7 +8,7 @@ function flushCallBacks() {
   pending = false;
   const copies = callbacks.slice(0);
   callbacks.length = 0;
-  for (let i = 0; i < copies.length; i++) {
+  for (let i = 0; i < copies.length; i++) {    
     copies[i]();
   }
 }
@@ -27,7 +27,7 @@ export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
 
   callbacks.push(() => {
     if (cb) {
-      try {
+      try {        
         cb.call(ctx);
       } catch (e: any) {}
     } else if (_resolve) {

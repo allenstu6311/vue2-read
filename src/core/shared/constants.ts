@@ -1,5 +1,10 @@
 export const SSR_ATTR = "data-server-rendered";
 
+/**
+ * component
+ * directive
+ * filter
+ */
 export const ASSET_TYPES = ["component", "directive", "filter"] as const;
 
 export const LIFECYCLE_HOOKS = [

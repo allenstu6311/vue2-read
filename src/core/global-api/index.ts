@@ -4,6 +4,8 @@ import config from "../config.js";
 import keepAlive from "../components/keep-alive.js";
 
 export function initGlobalAPI(Vue: GlobalAPI) {
+
+  
   // config
   const configDef: Record<string, any> = {};
   configDef.get = () => config;

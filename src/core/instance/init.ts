@@ -16,6 +16,7 @@ let uid = 0;
 
 export function initMixin(Vue: any) {
   Vue.prototype._init = function (options: any) {
+
     const vm: Component = this;
     vm._uid = uid++;
     vm._isVue = true;
@@ -33,7 +34,7 @@ export function initMixin(Vue: any) {
       );
     }
 
-    // console.log(vm);
+    console.log(vm);
     vm._renderProxy = vm; // 之後考慮用proxy
     vm._self = vm;
 

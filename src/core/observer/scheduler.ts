@@ -63,12 +63,12 @@ function flushSchedulerQueue() {
     }
     id = watcher.id;
     has[id] = null;
+    
     /**
      * 關鍵更新畫面方法
      */
     watcher.run();
-  }
-
+  }  
   // 暫時缺少activited生命期
 
   resetSchedulerState();
@@ -92,9 +92,10 @@ function callUpdatedHooks() {
  */
 export function queueWatcher(watcher: Watcher) {
   const id = watcher.id;
+
   if (has[id] != null) return;
   if (watcher === Dep.target && watcher.noRecurse) return;
-
+  // debugger
   has[id] = true;
 
   // 如果正在處理事件，就先加入對列

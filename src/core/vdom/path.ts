@@ -10,7 +10,8 @@
  * of making flow understand it is not worth it.
  */
 //@ts-nocheck
-import { isArray, isDef, isPrimitive, isUndef } from "../util/index.js";
+import { isTextInputType } from "../../platforms/web/util/element.js";
+import { isArray, isDef, isPrimitive, isTrue, isUndef } from "../util/index.js";
 import VNode, { cloneVNode } from "./vnode.js";
 
 export const emptyNode = new VNode("", {}, []);
@@ -40,6 +41,39 @@ export function createPatchFunction(backend: any) {
   }
 
   /**
+   * a andb 是否為相同節點(不一定內容相同)
+   * @param a oldVNode
+   * @param b currVNode
+   */
+  function sameVnode(a, b) {
+    return (
+      a.key === b.key &&
+      a.asyncFactory === b.asyncFactory &&
+      // 標籤
+      ((a.tag === b.tag &&
+        // 是否為註解
+        a.isComment === b.isComment &&
+        // 兩邊都有資料
+        isDef(a.data) === isDef(b.data) &&
+        sameInputType(a, b) ||
+        (isTrue(a.isAsyncPlaceholder) && isUndef(b.asyncFactory.error))
+      ))
+    )
+  }
+
+  /**
+   * 1.不是input標籤 return true
+   * 2.是input的話比較Type
+   */
+  function sameInputType(a, b) {
+    if (a.tag !== 'input') return true;
+    let i;
+    const typeA = isDef((i = a.data)) && isDef((i = i.attrs)) && i.type;
+    const typeB = isDef((i = b.data)) && isDef((i = b.attrs)) && i.type;
+    return typeA === typeB || isTextInputType(typeA) && isTextInputType(typeB);
+  }
+
+  /**
    * dom => vdom
    */
   function emptyNodeAt(elm) {
@@ -52,7 +86,7 @@ export function createPatchFunction(backend: any) {
     );
   }
 
-  function invokeDestroyHook(vnode) {}
+  function invokeDestroyHook(vnode) { }
 
   /**
    * css scoped
@@ -145,7 +179,7 @@ export function createPatchFunction(backend: any) {
   }
 
   /**
-   * 插入節點
+   * 插入節點(正式將DOM渲染出來)
    * @param parent
    * @param elm 標籤內容
    * @param ref 相鄰節點
@@ -194,6 +228,9 @@ export function createPatchFunction(backend: any) {
     }
   }
 
+  /**
+   * 移除舊的節點
+   */
   function removeAndInvokeRemoveHook(vnode, rm?: any) {
     if (isDef(rm) || isDef(vnode.data)) {
       let i;
@@ -219,6 +256,89 @@ export function createPatchFunction(backend: any) {
   }
 
   /**
+   * 目前用於檢查vnode是否有標籤
+   */
+  function isPatchable(vnode) {
+    return isDef(vnode.tag)
+  }
+
+  /**
+   * 更新子層
+   * @param parentElm 
+   * @param oldCh
+   * @param newCh 
+   * @param insertedVnodeQueue 
+   * @param removeOnly 
+   */
+  function updateChildren(
+    parentElm, //真實DOM
+    oldCh:Array<VNode>,
+    newCh:Array<VNode>,
+    insertedVnodeQueue,
+    removeOnly
+  ){
+    let oldStartIdx = 0;
+    let newStartIdx = 0;
+    let oldEndIdx = oldCh.length - 1;
+    let oldStartVnode = oldCh[0];
+    let oldEndVnode = oldCh[oldEndIdx];
+    let newEndIdx = newCh.length - 1;
+    let newStartVnode = newCh[0];
+    let newEndVnode = newCh[newEndIdx];
+    let oldKeyToIdx, idxInOld, vnodeToMove, refElm;
+
+    const canmove = !removeOnly;
+    
+    while(oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx){
+      if(isUndef(oldStartVnode)){
+
+      }else if()
+    }
+  }
+
+  function patchVnode(
+    oldVnode,
+    vnode,
+    insertedVnodeQueue,
+    ownerArray,
+    index,
+    removeOnly?: any
+  ) {
+
+    // 極少數情況可能物件會重用
+    if (oldVnode === vnode) return;
+ 
+    const elm = (vnode.elm = oldVnode.elm); //parent
+    console.log('elm',elm);
+    
+    // if(isTrue(oldVnode.isAsyncPlaceholder)){} 暫時沒有使用
+    // if (isTrue(vnode.isStatic) 暫時沒有使用
+
+    let i;
+    const data = vnode.data;
+    // if(isDef(data) && isDef(i = data.hook) && isDef((i = i.prepatch))){}
+    
+    const oldCh = oldVnode.children;
+    const ch = vnode.children;
+
+    if (isDef(data) && isPatchable(vnode)) {
+      // cbs update
+      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode);
+    }
+    // console.log(oldCh);
+    // console.log(ch);
+
+    if(isUndef(vnode.text)){
+      if(isDef(oldCh) && isDef(ch)){
+        
+        if(oldCh != ch){
+          updateChildren(elm,oldCh,ch,insertedVnodeQueue,removeOnly);
+        }
+      }
+    }
+  }
+
+  /**
    * oldVonde #app
    */
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
@@ -229,32 +349,41 @@ export function createPatchFunction(backend: any) {
       return;
     }
 
+    
     let isInitialPatch = false;
     const insertedVnodeQueue: any[] = []; // 插入vnode對列
 
     if (isUndef(oldVnode)) {
     } else {
+      // 虛擬DOM不會有NodeType所以用來判斷是否為虛擬DOM更新
       const isRealElement = isDef(oldVnode.nodeType);
 
-      if (isRealElement) {
-        // dom => vdom
-        oldVnode = emptyNodeAt(oldVnode);
+      if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        // update
+        patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
+
+      } else {
+        // create
+        if (isRealElement) {
+          // dom => vdom
+          oldVnode = emptyNodeAt(oldVnode);
+        }
+        const oldElm = oldVnode.elm;
+        const parentElm = nodeOps.parentNode(oldElm);
+    
+        createElm(
+          vnode,
+          insertedVnodeQueue,
+          oldElm._leaveCb ? null : parentElm,
+          nodeOps.nextSibling(oldElm)
+        );
+    
+        if (isDef(parentElm)) {
+          removeVnodes([oldVnode], 0, 0);
+        }
       }
     }
 
-    const oldElm = oldVnode.elm;
-    const parentElm = nodeOps.parentNode(oldElm);
-
-    createElm(
-      vnode,
-      insertedVnodeQueue,
-      oldElm._leaveCb ? null : parentElm,
-      nodeOps.nextSibling(oldElm)
-    );
-
-    if (isDef(parentElm)) {
-      removeVnodes([oldVnode], 0, 0);
-    }
 
     return vnode.elm;
   };

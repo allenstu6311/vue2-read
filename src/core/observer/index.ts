@@ -114,14 +114,13 @@ export function defineReactive(
 
       if (Dep.target) {
         dep.depend({
-          target: obj,
+          target: obj,// options data
           type: TrackOpTypes.GET,
           key,
         });
       } else {
         dep.depend();
       }
-
       //   if(childOb){}
       return value;
     },

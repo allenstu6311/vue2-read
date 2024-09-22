@@ -1,6 +1,9 @@
 import { hasSymbol, isArray, isDef, isObject } from "../../util/index.js";
 import VNode from "../../vdom/vnode.js";
 
+/**
+ * render v-for
+ */
 export function renderList(
   val: any,
   render: (val: any, keyOrIndex: string | number, index?: number) => VNode
@@ -23,6 +26,12 @@ export function renderList(
       ret[i] = render(i + 1, i);
     }
   } else if (isObject(val)) {
+    keys = Object.keys(val);
+    ret = new Array(keys.length);
+
+    for (i = 0, l = keys.length; i < l; i++) {
+      ret[i] = render(val[keys[i]], i)
+    }
   }
 
   if (!isDef(ret)) {
