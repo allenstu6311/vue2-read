@@ -65,3 +65,7 @@ export function inserBefore(
 export function setStyleScope(node: Element, scopeId: string) {
   node.setAttribute(scopeId, "");
 }
+
+export function setTextContent(node: Node, text: string) {
+  node.textContent = text;
+}
