@@ -84,7 +84,7 @@ export function hasChanged(x: unknown, y: unknown): boolean {
  * 不執行任何操作，滿足某些需要函數但實際上不會被調用的情況，
  * 避免 undefined 錯誤或其他潛在的問題
  */
-export function noop(a?: any, b?: any, c?: any) { }
+export function noop(a?: any, b?: any, c?: any) {}
 
 /**
  * Always return false.
@@ -126,7 +126,7 @@ export function isTrue(v: any): boolean {
 }
 
 /**
- * 物件不是undefind也不是null
+ * 此物件不是undefind也不是null
  */
 export function isDef<T>(v: T): v is NonNullable<T> {
   return v !== undefined && v !== null;
@@ -153,18 +153,18 @@ export function makeMap(
 
 export function toString(val: any): string {
   return val == null
-    ? ''
+    ? ""
     : Array.isArray(val) || (isPlainObject(val) && val.toString === _toString)
-      ? JSON.stringify(val, replacer, 2)
-      : String(val);
+    ? JSON.stringify(val, replacer, 2)
+    : String(val);
 }
 
 function replacer(_key: string, val: any): any {
   // avoid circular deps from v3
   if (val && val.__v_isRef) {
-    return val.value
+    return val.value;
   }
-  return val
+  return val;
 }
 
 /**
@@ -174,9 +174,8 @@ function replacer(_key: string, val: any): any {
  * @returns method
  */
 function nativeBind(fn: Function, ctx: Object): Function {
-  return fn.bind(ctx)
+  return fn.bind(ctx);
 }
 
 // @ts-expect-error bind cannot be `undefined`
-export const bind = Function.prototype.bind ? nativeBind : noop
-
+export const bind = Function.prototype.bind ? nativeBind : noop;
