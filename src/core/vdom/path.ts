@@ -10,7 +10,8 @@
  * of making flow understand it is not worth it.
  */
 //@ts-nocheck
-import { isArray, isDef, isPrimitive, isUndef } from "../util/index.js";
+import { isTextInputType } from "../../platforms/web/util/element.js";
+import { isArray, isDef, isPrimitive, isTrue, isUndef } from "../util/index.js";
 import VNode, { cloneVNode } from "./vnode.js";
 
 export const emptyNode = new VNode("", {}, []);
@@ -179,7 +180,7 @@ export function createPatchFunction(backend: any) {
   }
 
   /**
-   * 插入節點
+   * 插入節點(正式將DOM渲染出來)
    * @param parent
    * @param elm 標籤內容
    * @param ref 相鄰節點
@@ -228,6 +229,9 @@ export function createPatchFunction(backend: any) {
     }
   }
 
+  /**
+   * 移除舊的節點
+   */
   function removeAndInvokeRemoveHook(vnode, rm?: any) {
     if (isDef(rm) || isDef(vnode.data)) {
       let i;
@@ -338,7 +342,6 @@ export function createPatchFunction(backend: any) {
     let i;
     const data = vnode.data;
     // if(isDef(data) && isDef(i = data.hook) && isDef((i = i.prepatch))){}
-
     const oldCh = oldVnode.children;
     const ch = vnode.children;
 
@@ -383,6 +386,7 @@ export function createPatchFunction(backend: any) {
 
     if (isUndef(oldVnode)) {
     } else {
+      // 虛擬DOM不會有NodeType所以用來判斷是否為虛擬DOM更新
       const isRealElement = isDef(oldVnode.nodeType);
 
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
@@ -396,14 +400,12 @@ export function createPatchFunction(backend: any) {
         }
         const oldElm = oldVnode.elm;
         const parentElm = nodeOps.parentNode(oldElm);
-
         createElm(
           vnode,
           insertedVnodeQueue,
           oldElm._leaveCb ? null : parentElm,
           nodeOps.nextSibling(oldElm)
         );
-
         if (isDef(parentElm)) {
           removeVnodes([oldVnode], 0, 0);
         }

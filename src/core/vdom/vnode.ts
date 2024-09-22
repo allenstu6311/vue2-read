@@ -7,6 +7,9 @@ export default class VNode {
   data: VNodeData | undefined;
   children?: Array<VNode> | null;
   text?: string;
+  /**
+   * $el
+   */
   elm: Node | undefined;
   ns?: string;
   context?: Component; // rendered in this component's scope

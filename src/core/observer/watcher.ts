@@ -111,12 +111,12 @@ export default class Watcher implements DepTarget {
     let value;
     const vm = this.vm;
 
-    try {
+    try {      
       //.call(第一個是執行環境，第二個是funcion的參數)
       value = this.getter.call(vm, vm);
-
       // console.log("value", value);
     } catch (e) {
+      console.log('watcher get error',e);
       if (this.user) {
       } else throw e;
     } finally {

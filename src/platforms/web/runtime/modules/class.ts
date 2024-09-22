@@ -3,7 +3,6 @@ import { VNodeData } from "../../../../types/vnode.js";
 import { genClassForVnode } from "../../util/class.js";
 
 function updateClass(oldVnode: any, vnode: any) {
-
     const el = vnode.elm;
     const data: VNodeData = vnode.data;
     const oldData: VNodeData = oldVnode.data;

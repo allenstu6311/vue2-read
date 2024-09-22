@@ -102,14 +102,17 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
     // console.log("html", html);
     //確保不再script && style標籤當中
     if (!lastTag || !isPlainTextElement(lastTag)) {
+
       let textEnd = html.indexOf("<");
       // console.log("textEnd", textEnd);
       if (textEnd === 0) {
         if (comment.test(html)) {
           const commentEnd = html.indexOf("-->");
+
           // 有註解時觸發
           if (commentEnd >= 0) {
             // if (options.shouldKeepComment && options.comment) {}
+            advance(commentEnd + 3);
             continue;
           }
         }

@@ -8,9 +8,10 @@ import { Component } from "../../types/component.js";
 import { ASSET_TYPES, LIFECYCLE_HOOKS } from "../shared/constants.js";
 
 /**
- * 合併策略
+ * 所有options集合
  */
 const strats = config.optionMergeStrategies;
+
 
 strats.el = strats.propsData = function (
   parent: any,
@@ -35,10 +36,11 @@ function mergeData(
   to: Record<string | symbol, any>,
   from: Record<string | symbol, any> | null,
   recursive = true
-): Record<PropertyKey, any> {
+): Record<PropertyKey, any> {  
   if (!from) return to;
   let key, toVal, fromVal;
 
+  
   const keys = hasSymbol
     ? (Reflect.ownKeys(from) as string[])
     : Object.keys(from);
@@ -73,7 +75,6 @@ function mergeDataOrFn(
   if (!vm) {
     if (!childVal) return parentVal;
     if (!parentVal) return childVal;
-
     //如果同時有parentVal && childVal
     return function mergedDataFn(this: any) {
       return mergeData(
@@ -83,12 +84,21 @@ function mergeDataOrFn(
     };
   } else {
     return function mergedInstanceDataFn() {
+      /**
+       *  data() {
+          return {
+            test: 234,
+            test2: "test",
+          }
+       */
       const instanceData = isFunction(childVal)
         ? childVal.call(vm, vm)
         : childVal;
+
       const defaultData = isFunction(parentVal)
         ? parentVal.call(vm, vm)
         : parentVal;
+
       if (instanceData) {
         return mergeData(instanceData, defaultData);
       }
@@ -220,21 +230,21 @@ LIFECYCLE_HOOKS.forEach((hook) => {
 strats.props =
   strats.methods =
   strats.computed =
-    function (
-      parentVal: Object | null | any,
-      childVal: Object | null,
-      vm: Component | null,
-      key: string
-    ): Object | null {
-      if (childVal) {
-        assertObjectType(key, childVal, vm);
-        if (!parentVal) return childVal;
-      }
-      const ret = Object.create(parentVal || null);
-      extend(ret, parentVal);
-      if (childVal) extend(ret, childVal);
-      return ret;
-    };
+  function (
+    parentVal: Object | null | any,
+    childVal: Object | null,
+    vm: Component | null,
+    key: string
+  ): Object | null {
+    if (childVal) {
+      assertObjectType(key, childVal, vm);
+      if (!parentVal) return childVal;
+    }
+    const ret = Object.create(parentVal || null);
+    extend(ret, parentVal);
+    if (childVal) extend(ret, childVal);
+    return ret;
+  };
 
 /**
  * 確保所有 props 選項語法都標準化為物件格式
@@ -298,7 +308,7 @@ function assertObjectType(name: string, value: any, vm: Component | null) {
  */
 export function mergeOptions(
   parent: Record<string, any>,
-  child: Record<string, any>,
+  child: Record<string, any>, // options
   vm: any
 ): ComponentOptions {
   if (isFunction(child)) {
@@ -326,8 +336,8 @@ export function mergeOptions(
     const strat = strats[key] || defaultStrat;
     // console.log('key',key)
     // console.log('child',child[key])
-
     options[key] = strat(parent[key], child[key], vm, key);
   }
+
   return options;
 }

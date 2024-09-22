@@ -125,10 +125,12 @@ export function lifecycleMixin(Vue: typeof Component) {
     vm._vnode = vnode;
 
     // 是否為初次渲染
-    if (!prevVnode) {
+    if (!prevVnode) {      
       //init(開始渲染vnode)
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */);
     } else {
+
+      
       //update
       vm.$el = vm.__patch__(prevVnode, vnode);
     }
