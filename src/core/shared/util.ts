@@ -132,6 +132,10 @@ export function isDef<T>(v: T): v is NonNullable<T> {
   return v !== undefined && v !== null;
 }
 
+export function isFalse(v: any): boolean {
+  return v === false;
+}
+
 /**
  * 製作一個hashMap來檢查標籤
  */

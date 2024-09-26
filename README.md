@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用 dist 內部的 index.html
 
-觀察 patchVnode updateChildren 如何比較
+觀察 觀測陣列更新畫面 class Observer >> observeArray
 
 git reset --hard HEAD
 

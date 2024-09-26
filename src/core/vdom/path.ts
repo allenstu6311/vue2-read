@@ -131,6 +131,7 @@ export function createPatchFunction(backend: any) {
     ownerArray?: any,
     index?: any
   ) {
+    // console.log("vnode", vnode);
     if (isDef(vnode.elm) && isDef(ownerArray)) {
       vnode = ownerArray[index] = cloneVNode(vnode);
     }
@@ -399,6 +400,7 @@ export function createPatchFunction(backend: any) {
           oldVnode = emptyNodeAt(oldVnode);
         }
         const oldElm = oldVnode.elm;
+
         const parentElm = nodeOps.parentNode(oldElm);
         createElm(
           vnode,

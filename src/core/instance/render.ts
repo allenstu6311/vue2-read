@@ -55,8 +55,8 @@ export function renderMixin(Vue: typeof Component) {
     //render => with(this) return _c('div',{attrs:{"id":"app"}})...
     const { render, _parentVnode } = vm.$options;
     vm.$vnode = _parentVnode!;
-    // console.log('render',render);
-    
+    console.log("render", render);
+
     const prevInst = currentInstance;
     const prevRenderInst = currentRenderingInstance;
     let vnode;

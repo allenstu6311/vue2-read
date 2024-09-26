@@ -10,8 +10,19 @@ import {
   isPrimitive,
   isTrue,
 } from "../util/index.js";
+import {
+  normalizeChildren,
+  simpleNormalizeChildren,
+} from "./helpers/normalize-children.js";
 import VNode, { createEmptyVNode } from "./vnode.js";
 
+/**
+ * 轉換單層陣列
+ */
+const SIMPLE_NORMALIZE = 1;
+/**
+ * 資料中可能包含數字或字串，通常發生在手寫的render
+ */
 const ALWAYS_NORMALIZE = 2;
 
 /**
@@ -54,9 +65,11 @@ export function _createElement(
   }
   if (!tag) return createEmptyVNode();
 
-  // if(isArray(children) && isFunction(children[0])){
-
-  // }
+  if (normalizationType === ALWAYS_NORMALIZE) {
+    children = normalizeChildren(children);
+  } else if (normalizationType === SIMPLE_NORMALIZE) {
+    children = simpleNormalizeChildren(children);
+  }
 
   let vnode, ns;
   if (typeof tag === "string") {

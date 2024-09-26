@@ -30,14 +30,13 @@ export function renderList(
     ret = new Array(keys.length);
 
     for (i = 0, l = keys.length; i < l; i++) {
-      ret[i] = render(val[keys[i]], i)
+      ret[i] = render(val[keys[i]], i);
     }
   }
 
   if (!isDef(ret)) {
     ret = [];
   }
-
   (ret as any)._isVList = true;
   return ret;
 }
