@@ -51,8 +51,14 @@ export default class Watcher implements DepTarget {
   value: any;
   post: boolean;
 
-  onTrack?: ((event: DebuggerEvent) => void) | undefined; //追蹤
-  onTrigger?: ((event: DebuggerEvent) => void) | undefined; //觸發
+  /**
+   * 提示訊息用(追蹤)
+   */
+  onTrack?: ((event: DebuggerEvent) => void) | undefined;
+  /**
+   * 提示訊息用(觸發)
+   */
+  onTrigger?: ((event: DebuggerEvent) => void) | undefined;
 
   constructor(
     vm: any | null,
@@ -67,8 +73,8 @@ export default class Watcher implements DepTarget {
       activeEffectScope && !activeEffectScope._vm
         ? activeEffectScope
         : vm
-        ? vm._scope
-        : undefined
+          ? vm._scope
+          : undefined
     );
     //如果 vm 存在（即 this.vm 被成功賦值）且 isRenderWatcher 為 true，則將目前 Watcher 實例賦值給 vm._watcher。
     if ((this.vm = vm) && isRenderWatcher) {
@@ -106,17 +112,17 @@ export default class Watcher implements DepTarget {
   /**
    * 評估 getter，並重新收集依賴項。
    */
-  get() {
-    pushTarget(this);
+  get() {    
+    pushTarget(this); // this => watcher
     let value;
     const vm = this.vm;
 
-    try {      
+    try {
       //.call(第一個是執行環境，第二個是funcion的參數)
       value = this.getter.call(vm, vm);
       // console.log("value", value);
     } catch (e) {
-      console.log('watcher get error',e);
+      console.log('watcher get error', e);
       if (this.user) {
       } else throw e;
     } finally {
@@ -145,7 +151,7 @@ export default class Watcher implements DepTarget {
   /**
    * 清理依賴項目的蒐集
    */
-  cleanupDeps() {}
+  cleanupDeps() { }
   /**
    * 同步畫面資料(初始化不會觸發)
    */
@@ -164,7 +170,7 @@ export default class Watcher implements DepTarget {
   run() {
     this.get();
   }
-  evaluate() {}
-  depend() {}
-  teardown() {}
+  evaluate() { }
+  depend() { }
+  teardown() { }
 }

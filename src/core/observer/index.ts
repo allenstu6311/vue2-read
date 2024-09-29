@@ -7,9 +7,16 @@ import {
   isPlainObject,
   noop,
 } from "../shared/util.js";
-import { def } from "../util/index.js";
+import { def, hasProto } from "../util/index.js";
 import VNode from "../vdom/vnode.js";
 import Dep from "./dep.js";
+import { arrayMethods } from "./array.js";
+
+
+/**
+ * array method
+ */
+const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
 
 //無初始值
 const NO_INITIAL_VALUE = {};
@@ -34,11 +41,26 @@ export class Observer {
   dep: Dep;
   vmCount: number;
 
-  constructor(public value: any, public shallow = false, public mock = false) {
+  constructor(
+    public value: any, // data()
+    public shallow = false,
+    public mock = false
+  ) {
+
     this.dep = mock ? mockDep : new Dep();
     this.vmCount = 0;
-    def(value, "__ob__", this);
+    def(value, "__ob__", this); //將data設定__ob__屬性
     if (isArray(value)) {
+      if (!mock) {
+        if (hasProto) {
+          // 訪問陣列方法時，可觸發arrayMethods的響應式
+          (value as any).__proto__ = arrayMethods;
+        } else {
+
+        }
+      }
+
+      if (!shallow) {}
     } else {
       /**
        * 作用是將一個對象的所有屬性轉換為“響應式”屬性
@@ -50,6 +72,15 @@ export class Observer {
         const key = keys[i];
         defineReactive(value, key, NO_INITIAL_VALUE, undefined, shallow, mock);
       }
+    }
+  }
+
+  /**
+   * 觸發陣列方法後判斷是否需要觀察者
+   */
+  observeArray(value: any) {
+    for (let i = 0; i < value.length; i++) {
+      observe(value[i], false, this.mock);
     }
   }
 }
@@ -66,18 +97,22 @@ export function observe(
   if (value && hasOwn(value, "__ob__") && value.__ob__ instanceof Observer) {
     return value.__ob__;
   }
+  console.log('observe value', value);
+
   if (
     shouldObserve &&
-    (isArray(value) || isPlainObject(value)) &&
-    !value._v_skip &&
-    !(value instanceof VNode)
+    (isArray(value) || isPlainObject(value)) && //是陣列或物件
+    !value._v_skip && // 被標記可跳過
+    Object.isExtensible(value) && //必須是可擴展的
+    !(value instanceof VNode) // 不能是VNode
   ) {
     return new Observer(value, shallow, ssrMockReactivity);
   }
+
 }
 
 /**
- * 將屬性轉換為響應式，並通知修改
+ * 響應式核心，負責通知修改
  */
 export function defineReactive(
   obj: Object | any, //vm or data
@@ -105,7 +140,14 @@ export function defineReactive(
     val = obj[key];
   }
 
-  //   let childOb = shallow ? val && val.__ob__ : observe(val, false, mock);
+  // 子層觀察者
+  let childOb;
+  if (shallow) {
+    childOb = val && val.__ob__;
+  } else {
+    childOb = observe(val, false, mock);
+  }
+
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
@@ -113,15 +155,13 @@ export function defineReactive(
       const value = getter ? getter.call(obj) : val;
 
       if (Dep.target) {
-        dep.depend({
-          target: obj,// options data
-          type: TrackOpTypes.GET,
-          key,
-        });
-      } else {
         dep.depend();
       }
-      //   if(childOb){}
+
+      if(childOb){
+        childOb.dep.depend();
+      }
+
       return value;
     },
     set: function reactiveSetter(newVal) {
@@ -131,7 +171,7 @@ export function defineReactive(
       if (setter) setter.call(obj, newVal);
       else if (getter) return;
       else val = newVal;
-      
+
       dep.notify({
         type: TriggerOpTypes.SET,
         target: obj,

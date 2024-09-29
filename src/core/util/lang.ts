@@ -27,7 +27,11 @@ export function isResvered(str: string): boolean {
 }
 
 /**
- * 響應式一個屬性
+ * 監聽一個屬性並返回value
+ * @param obj 
+ * @param key 
+ * @param val any | function
+ * @param enumerable 
  */
 export function def(obj: Object, key: string, val: any, enumerable?: boolean) {
   Object.defineProperty(obj, key, {

@@ -1,3 +1,10 @@
+
+/**
+ * 物件是否具有__proto__屬性
+ * 
+ */
+export const hasProto = '__proto__' in {};
+
 export interface SimpleSet {
   has(key: string | number): boolean;
   add(key: string | number): any;

@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用 dist 內部的 index.html
 
-觀察 觀測陣列更新畫面 class Observer >> observeArray
+觀察 觀測陣列更新畫面 defineReactive childOb
 
 git reset --hard HEAD
 

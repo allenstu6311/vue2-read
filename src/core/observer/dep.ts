@@ -17,7 +17,10 @@ export interface DepTarget extends DebuggerOptions {
  * 管理依賴關係和通知依賴變化
  */
 export default class Dep {
-  static target?: DepTarget | null; //儲存目前正在被依賴收集的目標(它是一個靜態屬性，意味著它是類別層級的共享屬性)
+  /**
+   * 當前正在執行的watcher
+   */
+  static target?: DepTarget | null; 
   id: number;
   subs: Array<DepTarget | null>; //儲存所有watcher
   _pending = false; //用來標識當前是否有待清理的訂閱者
@@ -27,7 +30,9 @@ export default class Dep {
     this.subs = [];
   }
 
-  //新增一個訂閱者
+  /**
+   * 新增一個訂閱者
+   */
   addSub(sub: DepTarget) {
     this.subs.push(sub);
   }
@@ -83,7 +88,8 @@ Dep.target = null;
 const targetStack: Array<DepTarget | null | undefined> = [];
 
 /**
- * 加入觀察對象
+ * 加入當前watcher
+ * 沒傳入target代表不須觸發響應式
  */
 export function pushTarget(target?: DepTarget | null) {
   targetStack.push(target);
@@ -91,7 +97,7 @@ export function pushTarget(target?: DepTarget | null) {
 }
 
 /**
- *
+ * 移除當前watcher
  */
 export function popTarget() {
   targetStack.pop();
