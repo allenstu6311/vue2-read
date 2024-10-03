@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用 dist 內部的 index.html
 
-觀察 觀測陣列更新畫面 defineReactive childOb
+觀察 diff else 條件
 
 git reset --hard HEAD
 
@@ -9,7 +9,6 @@ https://vue.windliang.wang/posts/Vue2%E5%89%A5%E4%B8%9D%E6%8A%BD%E8%8C%A7-%E6%A8
 
 //菜單
 v-model (normalizeEvents)
-computed
 watch
 deep
 依賴蒐集

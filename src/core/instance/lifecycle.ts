@@ -63,7 +63,7 @@ export function mountComponent(
   const watcherOptions: WatcherOptions = {
     before() {
       if (vm._isMounted && !vm._isDestroyed) {
-        callHook(vm, 'beforeUpdate')
+        callHook(vm, "beforeUpdate");
       }
     },
   };
@@ -116,6 +116,9 @@ export function setActiveInstance(vm: Component) {
 }
 
 export function lifecycleMixin(Vue: typeof Component) {
+  /**
+   * vnode => Vue.prototype._render
+   */
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     // console.log("_update vnode", vnode);
     const vm: Component = this;
@@ -125,12 +128,10 @@ export function lifecycleMixin(Vue: typeof Component) {
     vm._vnode = vnode;
 
     // 是否為初次渲染
-    if (!prevVnode) {      
+    if (!prevVnode) {
       //init(開始渲染vnode)
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */);
     } else {
-
-      
       //update
       vm.$el = vm.__patch__(prevVnode, vnode);
     }

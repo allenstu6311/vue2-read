@@ -37,17 +37,18 @@ export function proxy(target: Object, sourceKey: string, key: string) {
 export function initState(vm: Component) {
   const opts = vm.$options;
 
-  if (opts.methods) iniMethods(vm, opts.methods)
+  if (opts.methods) iniMethods(vm, opts.methods);
   if (opts.data) {
     initData(vm);
   }
-  if (opts.computed) initComputed(vm, opts.computed)
+  if (opts.computed) initComputed(vm, opts.computed);
 }
 
 function iniMethods(vm: Component, methods: Object) {
   const props = vm.$options.props;
   for (const key in methods) {
-    vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm);
+    vm[key] =
+      typeof methods[key] !== "function" ? noop : bind(methods[key], vm);
   }
 }
 
@@ -74,52 +75,6 @@ function initData(vm: Component) {
   ob && ob.vmCount++;
 }
 
-const computedWatcherOptions = { lazy: true }
-
-function initComputed(vm: Component, computed: Object) {
-  const watchers = (vm._computedWatchers = Object.create(null));
-
-  for (const key in computed) {
-    const userDef = computed[key];// value
-    const getter = isFunction(userDef) ? userDef : userDef.get;
-
-    //建立計算屬性內部觀察程序
-    watchers[key] = new Watcher(
-      vm,
-      getter || noop,
-      noop,
-      computedWatcherOptions
-    )
-
-    // 檢查vm是否有computed key
-    if (!(key in vm)) {
-      //讓this能夠直接取的computed的值
-      defineComputed(vm, key, userDef)
-    }
-  }
-
-}
-
-/**
- * 定義computed
- */
-export function defineComputed(
-  target: any, //vm
-  key: string,
-  userDef: Record<string, any> | (() => any)
-) {
-  if (isFunction(userDef)) {
-    sharedPropertyDefinition.get = createGetterInvoker(userDef)
-  }
-  Object.defineProperty(target, key, sharedPropertyDefinition);
-}
-
-function createGetterInvoker(fn: Function) {  
-  return function computerGetter() {
-    return fn.call(this, this);
-  }
-}
-
 export function getData(data: Function, vm: Component) {
   pushTarget();
   try {
@@ -129,6 +84,57 @@ export function getData(data: Function, vm: Component) {
   } finally {
     popTarget();
   }
+}
+
+/**
+ * computed設定lazy
+ */
+const computedWatcherOptions = { lazy: true };
+
+function initComputed(vm: Component, computed: Object) {
+  const watchers = (vm._computedWatchers = Object.create(null));
+
+  for (const key in computed) {
+    const userDef = computed[key]; // value
+    const getter = isFunction(userDef) ? userDef : userDef.get;
+
+    //建立計算屬性內部觀察程序
+    watchers[key] = new Watcher(
+      vm,
+      getter || noop,
+      noop,
+      computedWatcherOptions
+    );
+
+    // 檢查vm是否有computed key
+    if (!(key in vm)) {
+      //讓this能夠直接取的computed的值
+      defineComputed(vm, key, userDef);
+    }
+  }
+}
+
+/**
+ * 聲明computed
+ */
+export function defineComputed(
+  target: any, //vm
+  key: string,
+  userDef: Record<string, any> | (() => any)
+) {
+  if (isFunction(userDef)) {
+    sharedPropertyDefinition.get = createGetterInvoker(userDef);
+  }
+  Object.defineProperty(target, key, sharedPropertyDefinition);
+}
+
+/**
+ * @param fn computed方法(userDef)
+ */
+function createGetterInvoker(fn: Function) {
+  return function computerGetter() {
+    return fn.call(this, this);
+  };
 }
 
 export function stateMixin(Vue: typeof Component) {

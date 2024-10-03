@@ -3,7 +3,7 @@ export const emptyObject: Record<string, any> = Object.freeze({});
 export const isArray = Array.isArray;
 
 /**
- * 判斷元素是否為undefind || null
+ * 元素是undefind || null
  */
 export function isUndef(v: any): v is undefined | null {
   return v === undefined || v === null;

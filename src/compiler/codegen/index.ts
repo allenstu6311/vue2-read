@@ -140,6 +140,11 @@ export function genData(el: ASTElement, state: CodegenState): string {
   const dirs = genDirectives(el, state);
   if (dirs) data += dirs + ",";
 
+  //:key
+  if (el.key) {
+    data += `key:${el.key}`;
+  }
+
   // compiler/class.ts genData(生成staticClass)
   for (let i = 0; i < state.dataGenFns.length; i++) {
     data += state.dataGenFns[i](el);
@@ -155,7 +160,6 @@ export function genData(el: ASTElement, state: CodegenState): string {
   }
 
   data = data.replace(/,$/, "") + "}";
-
   return data; //attrs:{"id":"app"}}
 }
 

@@ -12,11 +12,10 @@ import VNode from "../vdom/vnode.js";
 import Dep from "./dep.js";
 import { arrayMethods } from "./array.js";
 
-
 /**
  * array method
  */
-const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
+const arrayKeys = Object.getOwnPropertyNames(arrayMethods);
 
 //無初始值
 const NO_INITIAL_VALUE = {};
@@ -43,10 +42,9 @@ export class Observer {
 
   constructor(
     public value: any, // data()
-    public shallow = false,
+    public shallow = false, //資料是否僅單層
     public mock = false
   ) {
-
     this.dep = mock ? mockDep : new Dep();
     this.vmCount = 0;
     def(value, "__ob__", this); //將data設定__ob__屬性
@@ -56,11 +54,12 @@ export class Observer {
           // 訪問陣列方法時，可觸發arrayMethods的響應式
           (value as any).__proto__ = arrayMethods;
         } else {
-
         }
       }
 
-      if (!shallow) {}
+      if (!shallow) {
+        this.observeArray(value);
+      }
     } else {
       /**
        * 作用是將一個對象的所有屬性轉換為“響應式”屬性
@@ -97,7 +96,7 @@ export function observe(
   if (value && hasOwn(value, "__ob__") && value.__ob__ instanceof Observer) {
     return value.__ob__;
   }
-  console.log('observe value', value);
+  // console.log("observe value", value);
 
   if (
     shouldObserve &&
@@ -108,7 +107,6 @@ export function observe(
   ) {
     return new Observer(value, shallow, ssrMockReactivity);
   }
-
 }
 
 /**
@@ -141,7 +139,7 @@ export function defineReactive(
   }
 
   // 子層觀察者
-  let childOb;
+  let childOb: any;
   if (shallow) {
     childOb = val && val.__ob__;
   } else {
@@ -158,8 +156,11 @@ export function defineReactive(
         dep.depend();
       }
 
-      if(childOb){
+      if (childOb) {
         childOb.dep.depend();
+        if (isArray(value)) {
+          dependArray(value);
+        }
       }
 
       return value;
@@ -233,4 +234,19 @@ export function set(
     oldValue: undefined,
   });
   return val;
+}
+
+/**
+ * 一開始就直接蒐集所有依賴，因為無法在後續的getter蒐集
+ */
+function dependArray(value: Array<any>) {
+  for (let e, i = 0; i < value.length; i++) {
+    e = value[i];
+    if (e && e.__ob__) {
+      e.__ob__.dep.depend();
+    }
+    if (isArray(e)) {
+      dependArray(e);
+    }
+  }
 }

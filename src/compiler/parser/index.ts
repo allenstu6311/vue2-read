@@ -139,7 +139,6 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
      */
     start(tag, attrs, unary, start, end) {
       let element: ASTElement = createASTElement(tag, attrs, currentParent);
-      // console.log("start", JSON.parse(JSON.stringify(element)));
 
       // 處理input v-model
       for (let i = 0; i < preTransforms.length; i++) {
@@ -168,6 +167,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         root = element;
       }
 
+      //不是<h1/>
       if (!unary) {
         //賦值當前父層
         currentParent = element;
@@ -217,8 +217,9 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
             tokens: res.tokens,
             text,
           };
+          // console.log("child", text);
         }
-        //處理空白字串
+        // 純字串
         else if (
           text !== " " ||
           !children.length ||
@@ -229,6 +230,10 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
             text,
           };
         }
+        // console.log("currentParent", currentParent);
+
+        // console.log("children", children);
+
         if (child) {
           children.push(child);
         }

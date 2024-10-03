@@ -81,6 +81,9 @@ export interface HTMLParserOptions extends CompilerOptions {
   start?: (
     tag: string,
     attrs: ASTAttr[],
+    /**
+     * <h1/>
+     */
     unary: boolean,
     start: number,
     end: number
@@ -102,8 +105,8 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
     // console.log("html", html);
     //確保不再script && style標籤當中
     if (!lastTag || !isPlainTextElement(lastTag)) {
-
       let textEnd = html.indexOf("<");
+
       // console.log("textEnd", textEnd);
       if (textEnd === 0) {
         if (comment.test(html)) {
@@ -141,17 +144,17 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       if (textEnd >= 0) {
         rest = html.slice(textEnd);
 
-        //須不包含開始或結束的標籤才會執行
+        // 只有純文本會進來
         while (
-          !endTag.test(rest) &&
-          !startTagOpen.test(rest) &&
-          !comment.test(rest) &&
-          !conditionalComment.test(rest)
+          !endTag.test(rest) && // 不是結束標籤
+          !startTagOpen.test(rest) && // 不是開始標籤
+          !comment.test(rest) && // 不是註釋
+          !conditionalComment.test(rest) // 不是條件註釋
         ) {
-          next = rest.indexOf("<", 1);
-          if (next < 0) break;
-          textEnd += next;
-          rest = html.slice(textEnd);
+          next = rest.indexOf("<", 1); // 找到下一個 "<" 的位置，從索引 1 開始找
+          if (next < 0) break; // 如果沒有找到 "<"，跳出循環
+          textEnd += next; // 更新文本結束的位置
+          rest = html.slice(textEnd); // 更新 `rest`，表示剩餘待解析的字符串
         }
         text = html.substring(0, textEnd);
       }
