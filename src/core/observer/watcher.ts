@@ -6,7 +6,7 @@ import {
   recordEffectScope,
 } from "../../v3/reactivity/effectScope.js";
 
-import { isFunction, parsePath } from "../util/index.js";
+import { isFunction, isObject, parsePath } from "../util/index.js";
 import { queueWatcher } from "./scheduler.js";
 /**
  * @internal
@@ -32,7 +32,10 @@ export default class Watcher implements DepTarget {
   cb: Function; //數據變化時調用的callback
   id: number;
   deep: boolean; //是否深度觀察
-  user: boolean; //判斷是否為用戶自行使用$watch製作的響應式數據，這樣能夠更好的提示錯誤訊息
+  /**
+   * 判斷是否為用戶自行使用$watch製作
+   */
+  user: boolean;
   lazy: boolean; //避免不必要的計算，提高性能。只有當計算屬性被首次訪問或依賴的數據變更時，才會進行計算(computed用)
   sync: boolean; //觸發watch callback函數同步執行
   dirty: boolean; //通常與lazy搭配使用，通知資料更新
@@ -73,8 +76,8 @@ export default class Watcher implements DepTarget {
       activeEffectScope && !activeEffectScope._vm
         ? activeEffectScope
         : vm
-          ? vm._scope
-          : undefined
+        ? vm._scope
+        : undefined
     );
     //如果 vm 存在（即 this.vm 被成功賦值）且 isRenderWatcher 為 true，則將目前 Watcher 實例賦值給 vm._watcher。
     if ((this.vm = vm) && isRenderWatcher) {
@@ -112,7 +115,7 @@ export default class Watcher implements DepTarget {
   /**
    * 評估 getter，並重新收集依賴項。
    */
-  get() {    
+  get() {
     pushTarget(this); // this => watcher
     let value;
     const vm = this.vm;
@@ -122,7 +125,7 @@ export default class Watcher implements DepTarget {
       value = this.getter.call(vm, vm);
       // console.log("value", value);
     } catch (e) {
-      console.log('watcher get error', e);
+      console.log("watcher get error", e);
       if (this.user) {
       } else throw e;
     } finally {
@@ -151,7 +154,7 @@ export default class Watcher implements DepTarget {
   /**
    * 清理依賴項目的蒐集
    */
-  cleanupDeps() { }
+  cleanupDeps() {}
   /**
    * 同步畫面資料(初始化不會觸發)
    */
@@ -168,9 +171,25 @@ export default class Watcher implements DepTarget {
    * 同步資料與畫面
    */
   run() {
-    this.get();
+    if (this.active) {
+      const value = this.get();
+
+      if (
+        value !== this.value ||
+        /**
+         * 如果是引用型別 value !== this.value
+         * 並不可靠，所以需要此判斷
+         */
+        isObject(value) ||
+        this.deep
+      ) {
+        const oldValue = this.value;
+        this.value = value;
+        this.cb.call(this.vm, value, oldValue);
+      }
+    }
   }
-  evaluate() { }
-  depend() { }
-  teardown() { }
+  evaluate() {}
+  depend() {}
+  teardown() {}
 }

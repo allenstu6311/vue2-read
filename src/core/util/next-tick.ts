@@ -8,7 +8,7 @@ function flushCallBacks() {
   pending = false;
   const copies = callbacks.slice(0);
   callbacks.length = 0;
-  for (let i = 0; i < copies.length; i++) {    
+  for (let i = 0; i < copies.length; i++) {
     copies[i]();
   }
 }
@@ -27,7 +27,7 @@ export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
 
   callbacks.push(() => {
     if (cb) {
-      try {        
+      try {
         cb.call(ctx);
       } catch (e: any) {}
     } else if (_resolve) {
@@ -39,7 +39,8 @@ export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
     timerFunc();
   }
   /**
-   * 讓$nextTick可以使用.then
+   * 如果未提供回調函數，返回一個 Promise，
+   * 以便可以使用 $nextTick().then() 的形式來等待下一次 DOM 更新完成後執行操作。
    */
   if (!cb && typeof Promise !== "undefined") {
     return new Promise((resolve) => {

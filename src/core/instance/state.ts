@@ -2,7 +2,13 @@
 import { Component } from "../../types/component.js";
 import { popTarget, pushTarget } from "../observer/dep.js";
 import { observe, set } from "../observer/index.js";
-import { hasOwn, isFunction, isPlainObject, noop } from "../shared/util.js";
+import {
+  hasOwn,
+  isArray,
+  isFunction,
+  isPlainObject,
+  noop,
+} from "../shared/util.js";
 import { isResvered } from "../util/lang.js";
 import { bind } from "../shared/util.js";
 import Watcher from "../observer/watcher.js";
@@ -42,6 +48,9 @@ export function initState(vm: Component) {
     initData(vm);
   }
   if (opts.computed) initComputed(vm, opts.computed);
+  if (opts.watch) {
+    initWatch(vm, opts.watch);
+  }
 }
 
 function iniMethods(vm: Component, methods: Object) {
@@ -137,6 +146,34 @@ function createGetterInvoker(fn: Function) {
   };
 }
 
+function initWatch(vm: Component, watch: Object) {
+  for (const key in watch) {
+    const handler = watch[key];
+
+    if (isArray(handler)) {
+    } else {
+      createWatcher(vm, key, handler);
+    }
+  }
+}
+
+function createWatcher(
+  vm: Component,
+  expOrFn: string | (() => any), //key
+  handler: any, //fn
+  options?: Object
+) {
+  if (isPlainObject(handler)) {
+    options = handler;
+    handler = handler.handler;
+  }
+
+  if (typeof handler === "string") {
+    handler = vm[handler];
+  }
+  return vm.$watch(expOrFn, handler, options);
+}
+
 export function stateMixin(Vue: typeof Component) {
   const dataDef: any = {};
   dataDef.get = function () {
@@ -152,4 +189,23 @@ export function stateMixin(Vue: typeof Component) {
   Object.defineProperty(Vue.prototype, "$props", propsDef);
 
   Vue.prototype.$set = set;
+  Vue.prototype.$watch = function (
+    expOrFn: string | (() => any), //key
+    cb: any, // handler fn
+    options?: Record<string, any>
+  ): Function {
+    const vm: Component = this;
+    if (isPlainObject(cb)) {
+    }
+    options = options || {};
+    options.user = true;
+    const watcher = new Watcher(vm, expOrFn, cb, options);
+
+    if (options.immediate) {
+    }
+
+    return function unwatchFn() {
+      watcher.teardown();
+    };
+  };
 }

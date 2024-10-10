@@ -46,11 +46,6 @@ export function createPatchFunction(backend: any) {
    * @param b currVNode
    */
   function sameVnode(a, b, type) {
-    if (type) {
-      console.log("a", a);
-      console.log("b", b);
-    }
-
     return (
       a.key === b.key &&
       a.asyncFactory === b.asyncFactory &&
@@ -77,6 +72,20 @@ export function createPatchFunction(backend: any) {
     return (
       typeA === typeB || (isTextInputType(typeA) && isTextInputType(typeB))
     );
+  }
+
+  /**
+   * 回傳舊節的的key map
+   * @returns {Object} {key:index}
+   */
+  function createKeyToOldIdx(children, beginIdx, endIdx) {
+    let key;
+    const map = {};
+    for (let i = beginIdx; i <= endIdx; ++i) {
+      key = children[i].key;
+      if (isDef(key)) map[key] = i;
+    }
+    return map;
   }
 
   /**
@@ -127,6 +136,9 @@ export function createPatchFunction(backend: any) {
     // i = vnode.data.hook // 重複使用變數
   }
 
+  /**
+   * 創建節點
+   */
   function createElm(
     vnode,
     insertedVnodeQueue,
@@ -136,7 +148,6 @@ export function createPatchFunction(backend: any) {
     ownerArray?: any,
     index?: any
   ) {
-    // console.log("vnode", vnode);
     if (isDef(vnode.elm) && isDef(ownerArray)) {
       vnode = ownerArray[index] = cloneVNode(vnode);
     }
@@ -167,6 +178,9 @@ export function createPatchFunction(backend: any) {
     }
   }
 
+  /**
+   * 創建當前節點子層
+   */
   function createChildren(vnode, children, insertedVnodeQueue) {
     if (isArray(children)) {
       for (let i = 0; i < children.length; i++) {
@@ -276,16 +290,6 @@ export function createPatchFunction(backend: any) {
     return isDef(vnode.tag);
   }
 
-  function createKeyToOldIdx(children, beginIdx, endIdx) {
-    let key;
-    const map = {};
-    for (let i = beginIdx; i <= endIdx; ++i) {
-      key = children[i].key;
-      if (isDef(key)) map[key] = i;
-    }
-    return map;
-  }
-
   /**
    * vue diff算法
    */
@@ -296,7 +300,6 @@ export function createPatchFunction(backend: any) {
     insertedVnodeQueue,
     removeOnly
   ) {
-    console.log("----------------");
     // 節點索引
     let oldStartIdx = 0;
     let oldEndIdx = oldCh.length - 1;
@@ -310,8 +313,8 @@ export function createPatchFunction(backend: any) {
     let newEndVnode = newCh[newEndIdx];
 
     let oldKeyToIdx, //當前舊節點key,value
-      idxInOld,
-      vnodeToMove,
+      idxInOld, //當前舊節點 index
+      vnodeToMove, //被移動的VNode
       refElm; //相鄰的節點
 
     const canmove = !removeOnly;
@@ -360,7 +363,7 @@ export function createPatchFunction(backend: any) {
         // console.log("update newEndVnode", newEndVnode);
       }
       // DOM可能只是受到移位，避免直接創造新節點，增加舊節點得重用性
-      else if (sameVnode(oldStartVnode, newEndVnode, 3)) {
+      else if (sameVnode(oldStartVnode, newEndVnode)) {
         //比對舊列表的頭跟新列表的尾，如果相同就將舊節點插到新節點位置(oldStart vs newEnd)
         console.log("3");
 
@@ -383,12 +386,37 @@ export function createPatchFunction(backend: any) {
         //比對舊列表的頭跟新列表的尾，如果相同就將舊節點插到新節點位置(oldStart vs newEnd)
         console.log("4444");
       } else {
-        console.log("else");
+        console.log("5");
 
         //無法匹配，可能是新元素
-        // if (isUndef(oldKeyToIdx)) {
-        //   oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx);
-        // }
+        if (isUndef(oldKeyToIdx)) {
+          oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx);
+          idxInOld = isDef(newStartVnode.key)
+            ? oldKeyToIdx[newStartVnode.key]
+            : findIdxInOld(newEndVnode, oldCh, oldStartIdx, oldEndIdx);
+        }
+
+        //沒有在當前舊節點找到與新節點相同的內容
+        if (isUndef(idxInOld)) {
+          // 全新節點
+          createElm(
+            newStartVnode,
+            insertedVnodeQueue,
+            parentElm,
+            oldStartVnode.elm,
+            false,
+            newCh,
+            newStartIdx
+          );
+        } else {
+          // 暫時找不到條件
+          console.log("same key");
+          // 有找到代表只是位子被移動
+          vnodeToMove = oldCh[idxInOld];
+          if (sameVnode(vnodeToMove, newStartVnode)) {
+          }
+        }
+        newStartVnode = newCh[++newStartIdx];
       }
     }
 
@@ -422,14 +450,11 @@ export function createPatchFunction(backend: any) {
     removeOnly?: any
   ) {
     // 極少數情況可能物件會重用
-    if (oldVnode === vnode) {
-      console.log("return");
-      return;
-    }
+    if (oldVnode === vnode) return;
 
     const elm = (vnode.elm = oldVnode.elm); //parent
-    console.log("oldVnode", oldVnode);
-    console.log("vnode", vnode);
+    // console.log("oldVnode", oldVnode);
+    // console.log("vnode", vnode);
     // console.log("elm", elm);
     // console.log("vnode text", vnode);
 
@@ -500,6 +525,21 @@ export function createPatchFunction(backend: any) {
   }
 
   /**
+   * 回傳舊節點的index
+   * @param node 新節點(頭)
+   * @param oldCh
+   * @param start 舊節點start index
+   * @param end 舊節點end index
+   * @returns index
+   */
+  function findIdxInOld(node, oldCh, start, end) {
+    for (let i = start; i < end; i++) {
+      const c = oldCh[i];
+      if (isDef(c) && sameVnode(node, c)) return i;
+    }
+  }
+
+  /**
    * oldVonde #app
    */
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
@@ -541,8 +581,6 @@ export function createPatchFunction(backend: any) {
         }
       }
     }
-    console.log("vnode.elm", vnode);
-
     return vnode.elm;
   };
 }
