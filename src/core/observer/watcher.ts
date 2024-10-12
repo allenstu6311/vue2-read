@@ -8,6 +8,7 @@ import {
 
 import { isFunction, isObject, parsePath } from "../util/index.js";
 import { queueWatcher } from "./scheduler.js";
+import { traverse } from "./traverse.js";
 /**
  * @internal
  */
@@ -108,7 +109,8 @@ export default class Watcher implements DepTarget {
     if (isFunction(expOrFn)) {
       this.getter = expOrFn; //渲染函數方法(vm._update(vm._render(), hydrating);)
     } else {
-      this.getter = parsePath(expOrFn);
+      // deep
+      this.getter = parsePath(expOrFn);      
     }
     this.value = this.lazy ? undefined : this.get();
   }
@@ -122,17 +124,20 @@ export default class Watcher implements DepTarget {
 
     try {
       //.call(第一個是執行環境，第二個是funcion的參數)
-      value = this.getter.call(vm, vm);
-      // console.log("value", value);
+      value = this.getter.call(vm, vm); 
+
+           
     } catch (e) {
       console.log("watcher get error", e);
+
       if (this.user) {
       } else throw e;
+
     } finally {
       // 如果是深度監聽，則遞歸地觸摸每個屬性，觸發它們的 getter
-      // if (this.deep) {
-      //   traverse(value)
-      // }
+      if (this.deep) {
+        traverse(value)
+      }
       popTarget();
       this.cleanupDeps();
     }
@@ -172,8 +177,8 @@ export default class Watcher implements DepTarget {
    */
   run() {
     if (this.active) {
-      const value = this.get();
-
+      const value = this.get();      
+      // 觸發watch判斷
       if (
         value !== this.value ||
         /**

@@ -331,7 +331,7 @@ export function createPatchFunction(backend: any) {
         //已經被移動或刪除，直接跳過
       } else if (sameVnode(oldStartVnode, newStartVnode)) {
         //新舊列表的頭部節點是相同時，直接更新它們(oldStart vs newStar)
-        console.log("1");
+        // console.log("1");
         patchVnode(
           oldStartVnode,
           newStartVnode,
@@ -347,7 +347,7 @@ export function createPatchFunction(backend: any) {
         // console.log("newStartVnode", newStartVnode, "newStartIdx", newStartIdx);
       } else if (sameVnode(oldEndVnode, newEndVnode)) {
         //新舊列表的尾部節點是相同時，直接更新它們(oldEnd vs newEnd)
-        console.log("2");
+        // console.log("2");
 
         patchVnode(
           oldEndVnode,
@@ -365,7 +365,7 @@ export function createPatchFunction(backend: any) {
       // DOM可能只是受到移位，避免直接創造新節點，增加舊節點得重用性
       else if (sameVnode(oldStartVnode, newEndVnode)) {
         //比對舊列表的頭跟新列表的尾，如果相同就將舊節點插到新節點位置(oldStart vs newEnd)
-        console.log("3");
+        // console.log("3");
 
         patchVnode(
           oldStartVnode,
@@ -384,9 +384,9 @@ export function createPatchFunction(backend: any) {
         newEndVnode = newCh[--newEndIdx];
       } else if (sameVnode(oldEndVnode, newStartVnode)) {
         //比對舊列表的頭跟新列表的尾，如果相同就將舊節點插到新節點位置(oldStart vs newEnd)
-        console.log("4444");
+        // console.log("4444");
       } else {
-        console.log("5");
+        // console.log("5");
 
         //無法匹配，可能是新元素
         if (isUndef(oldKeyToIdx)) {

@@ -4,11 +4,13 @@ export const unicodeRegExp =
 
 /**
  * 解析資料路徑
+ * @param {String} path 'obj.list.a'
+ * @returns vm['obj.list.a']
  */
 const bailRE = new RegExp(`[^${unicodeRegExp.source}.$_\\d]`);
 export function parsePath(path: string): any {
   if (bailRE.test(path)) return;
-  const segments = path.split(".");
+  const segments = path.split(".");  
   return function (obj: any) {
     for (let i = 0; i < segments.length; i++) {
       if (!obj) return;

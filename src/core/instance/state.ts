@@ -80,7 +80,6 @@ function initData(vm: Component) {
   }
 
   const ob = observe(data);
-
   ob && ob.vmCount++;
 }
 
@@ -168,9 +167,9 @@ function createWatcher(
     handler = handler.handler;
   }
 
-  if (typeof handler === "string") {
-    handler = vm[handler];
-  }
+  // if (typeof handler === "string") {
+  //   handler = vm[handler];
+  // }  
   return vm.$watch(expOrFn, handler, options);
 }
 
