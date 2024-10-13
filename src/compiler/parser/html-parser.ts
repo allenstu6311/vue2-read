@@ -63,7 +63,10 @@ type tagPattern = {
   tagName: string;
   start?: number;
   end?: number;
-  unarySlash: string; //檢查是否為一元標籤
+  /**
+   * 檢查是否為一元標籤
+   */
+  unarySlash: string;
 };
 
 /**
@@ -259,7 +262,7 @@ export function parseHTML(html: any, options: HTMLParserOptions) {
       };
     }
     if (!unary) {
-      //記錄所有沒有結尾的標籤
+      //記錄有結尾的標籤<div></div>
       stack.push({
         tag: tagName,
         lowerCasedTag: tagName.toLowerCase(), //小寫標籤(之後比對end標籤用)

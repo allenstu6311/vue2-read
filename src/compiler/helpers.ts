@@ -127,3 +127,40 @@ export function addHandler(
   events[name] = newHandler;
   el.plain = false;
 }
+
+/**
+ * 賦值 el.directives
+ * @param el vm
+ * @param name model
+ * @param rawName v-model
+ * @param value key => v-molde="test" ? key = "test"
+ * @param arg 
+ * @param isDynamicArg 
+ * @param modifiers 
+ * @param range 
+ */
+export function addDirective(
+  el: ASTElement,
+  name: string,
+  rawName: string,
+  value: string,
+  arg?: string,
+  isDynamicArg?: boolean,
+  modifiers?: ASTModifiers,
+  range?: Range
+) {
+  (el.directives || (el.directives = [])).push(
+    rangeSetItem({
+      name,
+      rawName,
+      value,
+      arg,
+      isDynamicArg,
+      modifiers
+    },
+      range
+    )
+  )
+  el.plain = false
+}
+

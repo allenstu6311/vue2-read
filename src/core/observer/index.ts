@@ -140,9 +140,10 @@ export function defineReactive(
 
   // 子層觀察者
   let childOb: any;
-  if (shallow) {
+  if (shallow) {    
     childOb = val && val.__ob__;
   } else {
+    // console.log('val',val);
     childOb = observe(val, false, mock);
   }
 
@@ -151,7 +152,6 @@ export function defineReactive(
     configurable: true,
     get: function reactiveGetter() {
       const value = getter ? getter.call(obj) : val;
-      // console.log(key + ' : ' , value);
       
       if (Dep.target) {
         dep.depend();

@@ -78,7 +78,7 @@ function initData(vm: Component) {
       proxy(vm, `_data`, key);
     }
   }
-
+  
   const ob = observe(data);
   ob && ob.vmCount++;
 }

@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用 dist 內部的 index.html
 
-觀察 v-model (normalizeEvents) 深度觀察
+觀察 v-model(genDirectives)  深度觀察
 
 git reset --hard HEAD
 
@@ -10,6 +10,7 @@ https://vue.windliang.wang/posts/Vue2%E5%89%A5%E4%B8%9D%E6%8A%BD%E8%8C%A7-%E6%A8
 //菜單
 依賴蒐集
 整體更新邏輯
+cleanupDeps
 
 //需理解項目
 1.ts 邏輯

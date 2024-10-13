@@ -11,6 +11,7 @@ import {
   addHandler,
   getBindingAttr,
   pluckModuleFunction,
+  addDirective
 } from "../helpers.js";
 import { parseHTML } from "./html-parser.js";
 import { getAndRemoveAttr } from "../helpers.js";
@@ -26,6 +27,7 @@ const modifierRE = /\.[^.\]]+(?=[^\]]*$)/g;
 export const bindRE = /^:|^\.|^v-bind:/;
 export const onRE = /^@|^v-on:/;
 const dynamicArgRE = /^\[.*\]$/;
+const argRE = /:(.*)$/
 /**
  * v-for regular
  */
@@ -299,7 +301,7 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
     for (i = 0; i < list.length; i++) {
       name = rawName = list[i].name; // attr key (id)
       value = list[i].value; // attr val (app)
-      // 有@事件時觸發
+      // 有@,v-XXX事件時觸發
       if (dirRE.test(name)) {
         // 標記元素為動態
         el.hasBindings = true;
@@ -323,6 +325,27 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
             list[i],
             isDynamic
           );
+        } else { // normal directives(v-model,v-html...)
+         
+          // v-model => model
+          name = name.replace(dirRE, '');
+
+          // parse arg
+          const argMatch = name.match(argRE);
+          let arg = argMatch && argMatch[1]
+          isDynamic = false;
+
+          addDirective(
+            el,
+            name,
+            rawName,
+            value,
+            arg,
+            isDynamic,
+            modifiers,
+            list[i]
+          )
+          
         }
       } else {
         addAttr(el, name, JSON.stringify(value), list[i]);

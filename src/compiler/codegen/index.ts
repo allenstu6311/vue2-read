@@ -84,6 +84,7 @@ export function genElement(el: ASTElement, state: CodegenState): string {
   if (el.for && !el.forProcessed) {
     return genFor(el, state);
   } else {
+    console.log('el', el);
     let code;
     let data;
     const maybeComponent = state.maybeComponent(el);
@@ -99,9 +100,8 @@ export function genElement(el: ASTElement, state: CodegenState): string {
 
     let chidContent = children ? `,${children}` : "";
 
-    code = `_c(${tag}${data ? `,${data}` : ""}${
-      children ? `,${children}` : ""
-    })`;
+    code = `_c(${tag}${data ? `,${data}` : ""}${children ? `,${children}` : ""
+      })`;
 
     for (let i = 0; i < state.transforms.length; i++) {
       code = state.transforms[i](el, code);
@@ -198,9 +198,8 @@ export function genChildren(
       : 0;
 
     const gen = altGenNode || genNode;
-    return `[${children.map((c) => gen(c, state)).join(",")}]${
-      normalizationType ? `,${normalizationType}` : ""
-    }`;
+    return `[${children.map((c) => gen(c, state)).join(",")}]${normalizationType ? `,${normalizationType}` : ""
+      }`;
   }
 }
 
@@ -217,11 +216,10 @@ function genNode(node: ASTNode, state: CodegenState): string {
  * @returns [_v(_s(test))]
  */
 export function genText(text: ASTExpression | ASTText | any): string {
-  return `_v(${
-    text.type === 2
+  return `_v(${text.type === 2
       ? text.expression // 不需要 () 因為已經包裝在 _s() 中
       : transformSpecialNewlines(JSON.stringify(text.text))
-  })`;
+    })`;
 }
 
 /**
@@ -285,6 +283,15 @@ function needsNormalization(el: ASTElement): boolean {
 function genDirectives(el: ASTElement, state: CodegenState): string | void {
   const dirs = el.directives;
   if (!dirs) return;
+  let res = 'directives:[';
+  let hasRuntime = false;
+  let dir, needRuntime;
+
+  for (let i = 0; i < dirs.length; i++) {
+    dir = dirs[i];
+    needRuntime = true;
+    
+  }
 }
 
 /**

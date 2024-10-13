@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Write</title>
+  </head>
+  <body>
+    <div id="app">
+        <input type="text" v-model="test">
+    </div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js"
+      integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+     <script type="module" src="./dist/src/core/instance/index.js"></script>
+    <script type="module">
+      import Vue from "./dist/src/core/instance/index.js";
+      const app = new Vue({
+        props: {
+          "test-test": {
+            type: String,
+            default: "",
+          },
+        },
+        directives: {
+          "todo-focus": function (el, binding) {
+            if (binding.value) {
+              el.focus();
+            }
+          },
+        },
+        data() {
+          return {
+            test: 234,
+            // test2: "test",
+            obj: {
+              list: {
+                a: 1,
+                b:2
+              },
+            },
+            // arr: [1, 2, 3],
+          };
+        },
+        methods: {
+          fn() {
+            // this.test++
+            // this.arr.push(1)
+            this.obj.list.a++;
+            // console.log('this.tes+',this.test);
+          },
+        },
+        computed: {
+          // count() {
+          //   // console.log('test',this.test);
+
+          //   return this.test;
+          // },
+        },
+        watch: {
+          obj: {
+            handler(newVal, oldVal) {
+              console.log("obj cheange", newVal);
+            },
+            deep:true
+          },
+          // 'obj.list.a': {
+          //   handler(newVal, oldVal) {
+          //     console.log("obj cheange", newVal);
+          //   },
+          // },
+        },
+        mounted() {
+          // this.fn()
+        },
+      }).$mount("#app");
+    </script>
+  </body>
+</html>

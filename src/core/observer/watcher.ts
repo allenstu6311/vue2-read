@@ -51,6 +51,9 @@ export default class Watcher implements DepTarget {
   before?: Function;
   onStop?: Function; //watch被停止時調用(destory時觸發)
   noRecurse?: boolean;
+  /**
+   * 存放取得資料函數或渲染函數
+   */
   getter: Function;
   value: any;
   post: boolean;
@@ -109,13 +112,12 @@ export default class Watcher implements DepTarget {
     if (isFunction(expOrFn)) {
       this.getter = expOrFn; //渲染函數方法(vm._update(vm._render(), hydrating);)
     } else {
-      // deep
-      this.getter = parsePath(expOrFn);      
+      this.getter = parsePath(expOrFn);            
     }
     this.value = this.lazy ? undefined : this.get();
   }
   /**
-   * 評估 getter，並重新收集依賴項。
+   * 觸發getter，並收集依賴項。
    */
   get() {
     pushTarget(this); // this => watcher
@@ -124,9 +126,7 @@ export default class Watcher implements DepTarget {
 
     try {
       //.call(第一個是執行環境，第二個是funcion的參數)
-      value = this.getter.call(vm, vm); 
-
-           
+      value = this.getter.call(vm, vm);       
     } catch (e) {
       console.log("watcher get error", e);
 
@@ -146,8 +146,9 @@ export default class Watcher implements DepTarget {
   /**
    * 加入依賴
    */
-  addDep(dep: Dep) {
+  addDep(dep: Dep) {    
     const id = dep.id;
+
     if (!this.newDepIds.has(id)) {
       this.newDepIds.add(id);
       this.newDeps.push(dep);

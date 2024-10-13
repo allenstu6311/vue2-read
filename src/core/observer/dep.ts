@@ -1,4 +1,5 @@
 import { DebuggerOptions, DebuggerEventExtraInfo } from "../../v3/index.js";
+import Watcher from "./watcher.js";
 
 let uid = 0;
 const pendingCleanupDeps: Dep[] = [];
@@ -32,6 +33,7 @@ export default class Dep {
 
   /**
    * 新增一個訂閱者
+   * @param {Watcher} sub
    */
   addSub(sub: DepTarget) {
     this.subs.push(sub);
@@ -52,13 +54,13 @@ export default class Dep {
     //如果 Dep.target 存在，表示目前有一個依賴需要被收集，就將目前 Dep 實例加入 Dep.target 的依賴中
     if (Dep.target) {
       Dep.target.addDep(this); //收集依賴
-      if (info && Dep.target.onTrack) {
-        //追蹤
-        Dep.target.onTrack({
-          effect: Dep.target,
-          ...info,
-        });
-      }
+      // if (info && Dep.target.onTrack) {
+      //   //追蹤
+      //   Dep.target.onTrack({
+      //     effect: Dep.target,
+      //     ...info,
+      //   });
+      // }
     }
   }
   /**
@@ -90,8 +92,9 @@ const targetStack: Array<DepTarget | null | undefined> = [];
 /**
  * 加入當前watcher
  * 沒傳入target代表不須觸發響應式
+ * target 通常是watcher
  */
-export function pushTarget(target?: DepTarget | null) {
+export function pushTarget(target?: DepTarget | null | Watcher) {  
   targetStack.push(target);
   Dep.target = target;
 }
