@@ -66,7 +66,6 @@ export function renderMixin(Vue: typeof Component) {
       // console.log('vm.$createElement',vm.$createElement)
       // debugger
       // 正式渲染vnode fn
-
       vnode = render.call(vm._renderProxy, vm.$createElement);
       // console.log("vnode", vnode);
     } catch (err) {

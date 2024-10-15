@@ -17,6 +17,19 @@ export function pluckModuleFunction<T, K extends keyof T>(
   return modules ? (modules.map((m) => m[key]).filter((_) => _) as any) : [];
 }
 
+export function addProp(
+  el: ASTElement,
+  name: string,
+  value: string,
+  range?: Range,
+  dynamic?: boolean
+) {
+  (el.props || (el.props = [])).push(
+    rangeSetItem({ name, value, dynamic }, range)
+  );
+  el.plain = false;
+}
+
 /**
  * 在ASTElement移除指定的属性
  */
@@ -134,10 +147,10 @@ export function addHandler(
  * @param name model
  * @param rawName v-model
  * @param value key => v-molde="test" ? key = "test"
- * @param arg 
- * @param isDynamicArg 
- * @param modifiers 
- * @param range 
+ * @param arg
+ * @param isDynamicArg
+ * @param modifiers
+ * @param range
  */
 export function addDirective(
   el: ASTElement,
@@ -150,17 +163,17 @@ export function addDirective(
   range?: Range
 ) {
   (el.directives || (el.directives = [])).push(
-    rangeSetItem({
-      name,
-      rawName,
-      value,
-      arg,
-      isDynamicArg,
-      modifiers
-    },
+    rangeSetItem(
+      {
+        name,
+        rawName,
+        value,
+        arg,
+        isDynamicArg,
+        modifiers,
+      },
       range
     )
-  )
-  el.plain = false
+  );
+  el.plain = false;
 }
-

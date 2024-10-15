@@ -1,4 +1,4 @@
-import { ASTDirective, ASTElement } from "./../../../../types/compiler.js";
+import { ASTDirective, ASTElement } from "../../types/compiler.js";
 
 export default function bind(el: ASTElement, dir: ASTDirective) {
   el.wrapData = (code: string) => {

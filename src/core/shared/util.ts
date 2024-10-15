@@ -110,6 +110,14 @@ export function extend(
 }
 
 /**
+ * 傳回數字
+ */
+export function toNumber(val: string): number | string {
+  const n = parseFloat(val);
+  return isNaN(n) ? val : n;
+}
+
+/**
  * 檢查是否為原始值(string | number | symbol | boolean)
  */
 export function isPrimitive(value: any): boolean {

@@ -12,7 +12,7 @@ const baseCompile = function (
   // console.log("ast", ast);
   //生成表達函數
   const code = generate(ast, options);
-  // console.log("createCompilerCreator code", code);
+  console.log("createCompilerCreator code", code);
 
   return {
     ast,

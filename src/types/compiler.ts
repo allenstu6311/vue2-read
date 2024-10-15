@@ -116,9 +116,21 @@ export type ASTElementHandlers = {
   [key: string]: ASTElementHandler | Array<ASTElementHandler>;
 };
 
+/**
+ * v-model
+ */
 export type ASTDirective = {
+  /**
+   * model
+   */
   name: string;
+  /**
+   * v-model
+   */
   rawName: string;
+  /**
+   * vue data
+   */
   value: string;
   arg: string | null;
   isDynamicArg: boolean;

@@ -13,7 +13,7 @@ import { compileToFunctions } from "../../platforms/web/compiler/index.js";
 import { query } from "../../platforms/web/util/index.js";
 import { lifecycleMixin, mountComponent } from "./lifecycle.js";
 import { renderMixin } from "./render.js";
-import { patch } from "../../platforms/web/runtime/path.js";
+import { patch } from "../../platforms/web/runtime/patch.js";
 import {
   getTagNamespace,
   isReservedTag,

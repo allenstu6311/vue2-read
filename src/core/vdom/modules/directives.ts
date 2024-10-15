@@ -1,4 +1,4 @@
-import { emptyNode } from "../path.js";
+import { emptyNode } from "../patch.js";
 import { VNodeWithData } from "./../../../types/vnode.js";
 
 export default {

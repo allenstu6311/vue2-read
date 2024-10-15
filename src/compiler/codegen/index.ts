@@ -10,7 +10,7 @@ import {
   CompiledResult,
   CompilerOptions,
 } from "../../types/compiler.js";
-import baseDirective from "../../platforms/web/compiler/directives/index.js";
+import baseDirective from "../directives/index.js";
 import { genHandlers } from "./events.js";
 
 type TransformFunction = (el: ASTElement, code: string) => string;
@@ -18,7 +18,7 @@ type DataGenFunction = (el: ASTElement) => string;
 type DirectiveFunction = (
   el: ASTElement,
   dir: ASTDirective,
-  warn: Function
+  warn?: Function
 ) => boolean;
 
 /**
@@ -84,7 +84,6 @@ export function genElement(el: ASTElement, state: CodegenState): string {
   if (el.for && !el.forProcessed) {
     return genFor(el, state);
   } else {
-    console.log('el', el);
     let code;
     let data;
     const maybeComponent = state.maybeComponent(el);
@@ -100,8 +99,9 @@ export function genElement(el: ASTElement, state: CodegenState): string {
 
     let chidContent = children ? `,${children}` : "";
 
-    code = `_c(${tag}${data ? `,${data}` : ""}${children ? `,${children}` : ""
-      })`;
+    code = `_c(${tag}${data ? `,${data}` : ""}${
+      children ? `,${children}` : ""
+    })`;
 
     for (let i = 0; i < state.transforms.length; i++) {
       code = state.transforms[i](el, code);
@@ -154,6 +154,11 @@ export function genData(el: ASTElement, state: CodegenState): string {
     data += `attrs:${genProps(el.attrs)},`;
   }
 
+  // DOM props
+  if (el.props) {
+    data += `domProps:${genProps(el.props)},`;
+  }
+
   // event handlers
   if (el.events) {
     data += `${genHandlers(el.events, false)},`;
@@ -198,8 +203,9 @@ export function genChildren(
       : 0;
 
     const gen = altGenNode || genNode;
-    return `[${children.map((c) => gen(c, state)).join(",")}]${normalizationType ? `,${normalizationType}` : ""
-      }`;
+    return `[${children.map((c) => gen(c, state)).join(",")}]${
+      normalizationType ? `,${normalizationType}` : ""
+    }`;
   }
 }
 
@@ -216,10 +222,11 @@ function genNode(node: ASTNode, state: CodegenState): string {
  * @returns [_v(_s(test))]
  */
 export function genText(text: ASTExpression | ASTText | any): string {
-  return `_v(${text.type === 2
+  return `_v(${
+    text.type === 2
       ? text.expression // 不需要 () 因為已經包裝在 _s() 中
       : transformSpecialNewlines(JSON.stringify(text.text))
-    })`;
+  })`;
 }
 
 /**
@@ -283,14 +290,56 @@ function needsNormalization(el: ASTElement): boolean {
 function genDirectives(el: ASTElement, state: CodegenState): string | void {
   const dirs = el.directives;
   if (!dirs) return;
-  let res = 'directives:[';
+
+  let res = "directives:[";
   let hasRuntime = false;
   let dir, needRuntime;
 
   for (let i = 0; i < dirs.length; i++) {
     dir = dirs[i];
     needRuntime = true;
-    
+    const gen: DirectiveFunction =
+      state.directives[dir.name /** model,html,test... */]; //(model,html,test) fn
+
+    if (gen) {
+      needRuntime = !!gen(el, dir, state.warn);
+    }
+
+    if (needRuntime) {
+      hasRuntime = true;
+      const name = `name: "${dir.name}",`;
+      const rawName = `rawName: "${dir.rawName}"`;
+      const value = dir.value
+        ? `,value: (${dir.value}),expression: ${JSON.stringify(dir.value)}`
+        : "";
+      const arg = dir.arg
+        ? `,arg: ${dir.isDynamicArg ? dir.arg : `"${dir.arg}"`}`
+        : "";
+      const modifiers = dir.modifiers
+        ? `,modifiers: ${JSON.stringify(dir.modifiers)}`
+        : "";
+
+      // res += `{
+      //   ${name}
+      //   ${rawName}
+      //   ${value}
+      //   ${arg}
+      //   ${modifiers}
+      // },`;
+      res += `{name:"${dir.name}",rawName:"${dir.rawName}"${
+        dir.value
+          ? `,value:(${dir.value}),expression:${JSON.stringify(dir.value)}`
+          : ""
+      }${dir.arg ? `,arg:${dir.isDynamicArg ? dir.arg : `"${dir.arg}"`}` : ""}${
+        dir.modifiers ? `,modifiers:${JSON.stringify(dir.modifiers)}` : ""
+      }},`;
+      // res += `{${name},${rawName}${value}${arg}${modifiers}},`;
+
+      //directives:[{name:"model",rawName:"v-model",value:(test),expression:"test"},
+    }
+    if (hasRuntime) {
+      return res.slice(0, -1) + "]";
+    }
   }
 }
 
@@ -312,7 +361,6 @@ function genProps(props: Array<ASTAttr>): string {
       staticProps += `"${prop.name}":${value},`; // "id":"app",
     }
   }
-
   staticProps = `{${staticProps.slice(0, -1)}}`; // {"id":"app"} (去掉最後的逗號)
 
   if (dynamicProps) {
