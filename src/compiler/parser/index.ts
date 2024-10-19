@@ -82,7 +82,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     );
 
   transforms = pluckModuleFunction(options.modules, "transformNode"); //處理 class && style
-  preTransforms = pluckModuleFunction(options.modules, "preTransformNode");
+  preTransforms = pluckModuleFunction(options.modules, "preTransformNode");// 處理動態v-model=>v-model="data[key]"
   postTransforms = pluckModuleFunction(options.modules, "postTransformNode");
   delimiters = options.delimiters;
 
@@ -142,7 +142,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     start(tag, attrs, unary, start, end) {
       let element: ASTElement = createASTElement(tag, attrs, currentParent);
 
-      // 處理input v-model
+      // 處理input v-model(preTransformNode)
       for (let i = 0; i < preTransforms.length; i++) {
         element = preTransforms[i](element, options) || element;
       }
@@ -331,19 +331,19 @@ export function processElement(element: ASTElement, options: CompilerOptions) {
           name = name.replace(dirRE, '');
 
           // parse arg
-          const argMatch = name.match(argRE);
-          let arg = argMatch && argMatch[1]
+          const argMatch = name.match(argRE);          
+          let arg = argMatch && argMatch[1];
           isDynamic = false;
-
+          
           addDirective(
             el,
-            name,
-            rawName,
-            value,
+            name,// model
+            rawName,// v-model
+            value,//v-model variable
             arg,
             isDynamic,
             modifiers,
-            list[i]
+            list[i]// {name:'v-model',value:'test'}
           )
           
         }

@@ -44,12 +44,11 @@ function genDefaultModel(
   const needCompositionGuard = !lazy && type!== 'range';
 
   let valueExpression = "$event.target.value";
-  let code = genAssignmentCode(value, valueExpression);
+  let code = genAssignmentCode(value, valueExpression);//test=$event.target.value  
 
   if(needCompositionGuard){
     code = `if($event.target.composing)return;${code}`;
   }
-  console.log('event',event);
   
   addProp(el, "value", `(${value})`);
   addHandler(el, event, code, null, true);

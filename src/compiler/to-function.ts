@@ -11,7 +11,7 @@ type CompiledFunctionResult = {
 /**
  * 創造render function
  */
-function createFunction(code: any, errors: any) {
+function createFunction(code: any, errors: any) {  
   try {
     return new Function(code);
   } catch (err: any) {
@@ -36,7 +36,7 @@ export function createCompileToFunctionFn(compile: Function): Function {
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template;
-
+    
     if (cache[key]) {
       return cache[key];
     }

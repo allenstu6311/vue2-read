@@ -131,7 +131,7 @@ export function createPatchFunction(backend: any) {
    * updateDirective
    */
   function invokeCreateHooks(vnode, insertedVnodeQueue) {
-    for (let i = 0; i < cbs.create.length; i++) {
+    for (let i = 0; i < cbs.create.length; i++) {      
       cbs.create[i](emptyNode, vnode);
     }
     // i = vnode.data.hook // 重複使用變數
