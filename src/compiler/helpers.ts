@@ -139,6 +139,7 @@ export function addHandler(
 
   events[name] = newHandler;
   el.plain = false;
+  
 }
 
 /**

@@ -68,7 +68,8 @@ export function createPatchFunction(backend: any) {
     if (a.tag !== "input") return true;
     let i;
     const typeA = isDef((i = a.data)) && isDef((i = i.attrs)) && i.type;
-    const typeB = isDef((i = b.data)) && isDef((i = b.attrs)) && i.type;
+    const typeB = isDef((i = b.data)) && isDef((i = i.attrs)) && i.type;
+
     return (
       typeA === typeB || (isTextInputType(typeA) && isTextInputType(typeB))
     );
@@ -348,7 +349,6 @@ export function createPatchFunction(backend: any) {
       } else if (sameVnode(oldEndVnode, newEndVnode)) {
         //新舊列表的尾部節點是相同時，直接更新它們(oldEnd vs newEnd)
         // console.log("2");
-
         patchVnode(
           oldEndVnode,
           newEndVnode,
@@ -359,12 +359,10 @@ export function createPatchFunction(backend: any) {
         // 更新尾部index
         oldEndVnode = oldCh[--oldEndIdx];
         newEndVnode = newCh[--newEndIdx];
-        // console.log("update oldEndVnode", oldEndVnode);
-        // console.log("update newEndVnode", newEndVnode);
+
       }
-      // DOM可能只是受到移位，避免直接創造新節點，增加舊節點得重用性
       else if (sameVnode(oldStartVnode, newEndVnode)) {
-        //比對舊列表的頭跟新列表的尾，如果相同就將舊節點插到新節點位置(oldStart vs newEnd)
+        //DOM可能只是受到移位，避免直接創造新節點，增加舊節點得重用性(oldStart vs newEnd)
         // console.log("3");
 
         patchVnode(
@@ -383,7 +381,7 @@ export function createPatchFunction(backend: any) {
         oldStartVnode = oldCh[++oldStartIdx];
         newEndVnode = newCh[--newEndIdx];
       } else if (sameVnode(oldEndVnode, newStartVnode)) {
-        //比對舊列表的頭跟新列表的尾，如果相同就將舊節點插到新節點位置(oldStart vs newEnd)
+        //DOM可能只是受到移位，避免直接創造新節點，增加舊節點得重用性(oldStart vs newEnd)
         // console.log("4444");
       } else {
         // console.log("5");
@@ -436,11 +434,16 @@ export function createPatchFunction(backend: any) {
         insertedVnodeQueue
       );
     } else if (newStartIdx > newEndIdx) {
+      /**
+       * 新節點已遍利完畢，剩下都是刪除
+       */
       removeVnodes(oldCh, oldStartIdx, oldEndIdx);
     }
-    // console.log("over");
   }
 
+  /**
+   * vue diff算法
+   */
   function patchVnode(
     oldVnode,
     vnode,
@@ -511,7 +514,7 @@ export function createPatchFunction(backend: any) {
     endIdx,
     insertedVnodeQueue
   ) {
-    for (; startIdx <= endIdx; ++startIdx) {
+    for (; startIdx <= endIdx; ++startIdx) {      
       createElm(
         vnodes[startIdx],
         insertedVnodeQueue,

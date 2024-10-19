@@ -319,20 +319,20 @@ function genDirectives(el: ASTElement, state: CodegenState): string | void {
         ? `,modifiers: ${JSON.stringify(dir.modifiers)}`
         : "";
 
-      // res += `{
-      //   ${name}
-      //   ${rawName}
-      //   ${value}
-      //   ${arg}
-      //   ${modifiers}
-      // },`;
-      res += `{name:"${dir.name}",rawName:"${dir.rawName}"${
-        dir.value
-          ? `,value:(${dir.value}),expression:${JSON.stringify(dir.value)}`
-          : ""
-      }${dir.arg ? `,arg:${dir.isDynamicArg ? dir.arg : `"${dir.arg}"`}` : ""}${
-        dir.modifiers ? `,modifiers:${JSON.stringify(dir.modifiers)}` : ""
-      }},`;
+      res += `{
+        ${name}
+        ${rawName}
+        ${value}
+        ${arg}
+        ${modifiers}
+      },`;
+      // res += `{name:"${dir.name}",rawName:"${dir.rawName}"${
+      //   dir.value
+      //     ? `,value:(${dir.value}),expression:${JSON.stringify(dir.value)}`
+      //     : ""
+      // }${dir.arg ? `,arg:${dir.isDynamicArg ? dir.arg : `"${dir.arg}"`}` : ""}${
+      //   dir.modifiers ? `,modifiers:${JSON.stringify(dir.modifiers)}` : ""
+      // }},`;
       // res += `{${name},${rawName}${value}${arg}${modifiers}},`;
 
       //directives:[{name:"model",rawName:"v-model",value:(test),expression:"test"},

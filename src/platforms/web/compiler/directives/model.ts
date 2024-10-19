@@ -1,5 +1,5 @@
 import { genAssignmentCode } from "../../../../compiler/directives/model.js";
-import { addProp } from "../../../../compiler/helpers.js";
+import { addHandler, addProp } from "../../../../compiler/helpers.js";
 import {
   ASTDirective,
   ASTElement,
@@ -34,14 +34,23 @@ export default function model(
 function genDefaultModel(
   el: ASTElement,
   value: string, //v-model="test" => test
-  modifiers?: ASTModifiers | null
+  modifiers?: ASTModifiers | null // v-model.number => number
 ): boolean | void {
   const type = el.attrsMap.type; // input type
+  
+  const { lazy, number, trim } = modifiers || {};
+  const event = lazy ? 'change' : type === 'range' ? RANGE_TOKEN : 'input'
+  // const event = 'input';
+  const needCompositionGuard = !lazy && type!== 'range';
 
-  // const { lazy, number, trim } = modifiers || {};
   let valueExpression = "$event.target.value";
-
   let code = genAssignmentCode(value, valueExpression);
 
+  if(needCompositionGuard){
+    code = `if($event.target.composing)return;${code}`;
+  }
+  console.log('event',event);
+  
   addProp(el, "value", `(${value})`);
+  addHandler(el, event, code, null, true);
 }

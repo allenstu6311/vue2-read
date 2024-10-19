@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用 dist 內部的 index.html
 
-觀察 v-model 動態變更
+觀察 整體更新邏輯
 
 git reset --hard HEAD
 
