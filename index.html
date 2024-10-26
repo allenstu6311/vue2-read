@@ -7,8 +7,10 @@
   </head>
   <body>
     <div id="app">
-      <input type="text" v-model="test" />
-      {{ test }}
+      <!-- <input type="text" v-model="test" /> -->
+       {{count}}
+       {{test}}
+       <button @click="fn">test</button>
     </div>
 
     <script
@@ -38,28 +40,28 @@
           return {
             test: 234,
             // test2: "test",
-            obj: {
-              list: {
-                a: 1,
-                b: 2,
-              },
-            },
+            // obj: {
+            //   list: {
+            //     a: 1,
+            //     b: 2,
+            //   },
+            // },
             // arr: [1, 2, 3],
           };
         },
         methods: {
           fn() {
-            // this.test++
+            this.test++
             // this.arr.push(1)
-            this.obj.list.a++;
+            // this.obj.list.a++;
             // console.log('this.tes+',this.test);
           },
         },
         computed: {
-          // count() {
-          //   // console.log('test',this.test);
-          //   return this.test;
-          // },
+          count() {
+            // console.log('test',this.test);
+            return this.test + 1;
+          },
         },
         watch: {
           obj: {

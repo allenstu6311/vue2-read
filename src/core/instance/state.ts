@@ -40,6 +40,9 @@ export function proxy(target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, sharedPropertyDefinition);
 }
 
+/**
+ * 初始化options所有項目(data,computed,watch...)
+ */
 export function initState(vm: Component) {
   const opts = vm.$options;
 
@@ -61,6 +64,9 @@ function iniMethods(vm: Component, methods: Object) {
   }
 }
 
+/**
+ * 將options.data 利用 observe 轉換為響應式對象
+ */
 function initData(vm: Component) {
   let data: any = vm.$options.data;
   data = vm._data = isFunction(data) ? getData(data, vm) : data || {};

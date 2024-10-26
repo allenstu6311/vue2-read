@@ -78,26 +78,27 @@ function flushSchedulerQueue() {
 
 function callUpdatedHooks() {
   let i = queue.length;
+  
   while (i--) {
     const watcher = queue[i];
     const vm = watcher.vm;
-    if (vm && vm._watcher && vm._isMounted && !vm._isDestroyed) {
+    if (vm && vm._watcher === watcher && vm._isMounted && !vm._isDestroyed) {
       callHook(vm, "updated");
     }
   }
 }
 
 /**
+ * watcher update 觸發
  * 將監聽事件進行對列排序
  */
-export function queueWatcher(watcher: Watcher) {
+export function queueWatcher(watcher: Watcher) {  
   const id = watcher.id;
 
   if (has[id] != null) return;
   if (watcher === Dep.target && watcher.noRecurse) return;
-  // debugger
   has[id] = true;
-
+  
   // 如果正在處理事件，就先加入對列
   if (!flushing) {
     queue.push(watcher);

@@ -54,9 +54,12 @@ export function mountComponent(
     vm.$options.render = createEmptyVNode;
   }
   callHook(vm, "beforeMount");
-  let updateComponent;
 
-  updateComponent = () => {
+  /**
+   * 將VNode渲染真實DOM的關鍵方法
+   */
+  let updateComponent;
+  updateComponent = () => {    
     vm._update(vm._render(), hydrating);
   };
 

@@ -2,6 +2,7 @@ import { cached } from "../../core/util/index.js";
 import { compileToFunctions } from "./compiler/index.js";
 import { query } from "./util/index.js";
 import { mount } from "../../core/instance/index.js";
+
 /**
  * 回傳html
  */
@@ -15,7 +16,6 @@ export function initMount(Vue: any) {
 
   Vue.prototype.$mount = function (el?: string | Element, hydrating?: boolean) {
     const options = this.$options;
-    // console.log("tt", options.render);
     el = el && query(el);
     if (!options.render) {
       let template = options.template;

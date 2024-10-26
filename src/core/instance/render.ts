@@ -5,10 +5,14 @@ import {
 } from "../../v3/currentInstance.js";
 import { defineReactive } from "../observer/index.js";
 import { emptyObject, isArray } from "../shared/util.js";
+import { nextTick } from "../util/next-tick.js";
 import { createElement } from "../vdom/create-element.js";
 import VNode, { createEmptyVNode } from "../vdom/vnode.js";
 import { installRenderHelpers } from "./render-helpers/index.js";
 
+/**
+ * 初始化 _C
+ */
 export function initRender(vm: Component) {
   vm._vnode = null; // 子樹的根
   vm._staticTrees = null; // v-once 快取樹
@@ -49,10 +53,14 @@ export let currentRenderingInstance: Component | null = null;
 
 export function renderMixin(Vue: typeof Component) {
   installRenderHelpers(Vue.prototype);
+
+  Vue.prototype.$nextTick = function (fn: (...args: any[]) => any) {
+    return nextTick(fn, this)
+  }
   Vue.prototype._render = function (): VNode {
     const vm: Component = this;
-
     //render => with(this) return _c('div',{attrs:{"id":"app"}})...
+
     const { render, _parentVnode } = vm.$options;
     vm.$vnode = _parentVnode!;
     // console.log("render", render);
@@ -64,7 +72,8 @@ export function renderMixin(Vue: typeof Component) {
       setCurrentInstance(vm);
       currentRenderingInstance = vm;
       // console.log('vm.$createElement',vm.$createElement)
-      // debugger
+      // console.log('vm._renderProxy',vm._renderProxy);
+      
       // 正式渲染vnode fn
       vnode = render.call(vm._renderProxy, vm.$createElement);
       // console.log("vnode", vnode);

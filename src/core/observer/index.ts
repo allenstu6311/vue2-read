@@ -34,7 +34,8 @@ const mockDep = {
 } as Dep;
 
 /**
- * 觀察者對象
+ * __ob__屬性
+ * getter/setter
  */
 export class Observer {
   dep: Dep;
@@ -85,7 +86,7 @@ export class Observer {
 }
 
 /**
- * 建立觀察者對象
+ * 將普通對象設定為響應式，並給每個屬性設置getter跟setter
  */
 export function observe(
   value: any | any,

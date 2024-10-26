@@ -2,7 +2,7 @@ const callbacks: Array<Function> = [];
 let pending = false;
 
 /**
- * 開始執行callback
+ * 開始執行nextTock回調
  */
 function flushCallBacks() {
   pending = false;
@@ -14,17 +14,17 @@ function flushCallBacks() {
 }
 
 const p = Promise.resolve();
-
-let timerFunc: Function = () => {
+// vue異步渲染關鍵
+let timerFunc: Function = () => {  
   p.then(flushCallBacks);
 };
 
 /**
  * @internal
  */
-export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
+export function nextTick(cb?: (...args: any[]) => any, ctx?: object) { 
   let _resolve: Function;
-
+  
   callbacks.push(() => {
     if (cb) {
       try {
@@ -34,7 +34,7 @@ export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
       _resolve(ctx);
     }
   });
-
+  
   if (!pending) {
     timerFunc();
   }
