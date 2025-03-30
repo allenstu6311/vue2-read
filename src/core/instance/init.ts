@@ -32,9 +32,9 @@ export function initMixin(Vue: any) {
         options,
         vm
       );
+      // console.log('vm.$options',vm.$options);
     }
 
-    console.log(vm);
     vm._renderProxy = vm; // 之後考慮用proxy
     vm._self = vm;
 

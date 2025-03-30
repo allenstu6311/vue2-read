@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>test</title>
+</head>
+<body>
+  <div id="app">
+    <h2>父组件: {{ parentData }}</h2>
+    <child-component v-model="parentData"></child-component>
+  </div>
+
+  <script
+  src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js"
+  integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script type="module" src="./dist/src/core/instance/index.js"></script>
+  <script type="module">
+        import Vue from "./dist/src/core/instance/index.js";
+    // 子组件（純 Options API）
+    const ChildComponent = {
+      name: 'ChildComponent',
+      props: ['value'],
+      template: `
+        <div style="border: 1px solid #ccc; padding: 10px; margin-top: 10px;">
+          <h3>子组件</h3>
+          <p>从父组件接收: {{ value }}</p>
+          <p>子数据: {{ childData }}</p>
+          <button @click="test">更新父组件</button>
+        </div>
+      `,
+      data() {
+        return {
+          childData: 0
+        }
+      },
+      watch: {
+        value(newVal) {
+        //   console.log('child watch value:', newVal);
+        }
+      },
+      methods: {
+        test() {
+          this.$emit('input', 123); // v-model 綁的是 value/input
+        }
+      }
+    };
+
+    // 父组件（純 Options API）
+    new Vue({
+      el: '#app',
+      components: {
+        ChildComponent
+      },
+      data() {
+        return {
+          parentData: 1
+        };
+      },
+      watch: {
+        parentData(newVal) {
+        //   console.log('parent watch parentData:', newVal);
+        }
+      }
+    }).$mount("#app")
+  </script>
+</body>
+</html>

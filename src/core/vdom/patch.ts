@@ -153,6 +153,10 @@ export function createPatchFunction(backend: any) {
       vnode = ownerArray[index] = cloneVNode(vnode);
     }
 
+    if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
+      return
+    }
+
     const data = vnode.data;
     const children = vnode.children;
     const tag = vnode.tag;
@@ -172,10 +176,19 @@ export function createPatchFunction(backend: any) {
         invokeCreateHooks(vnode, insertedVnodeQueue);
       }
 
+      
       insert(parentElm, vnode.elm, refElm);
     } else {
+
       vnode.elm = nodeOps.createTextNode(vnode.text);
       insert(parentElm, vnode.elm, refElm);
+    }
+  }
+
+  function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
+    //createComponent
+    let i = vnode.data;
+    if (isDef(i)) {       
     }
   }
 

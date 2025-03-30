@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用根目錄的 index.html
 
-觀察 整體更新邏輯
+觀察 createComponent
 
 git reset --hard HEAD
 

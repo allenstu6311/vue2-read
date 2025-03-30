@@ -7,10 +7,8 @@
   </head>
   <body>
     <div id="app">
-      <!-- <input type="text" v-model="test" /> -->
-       {{count}}
-       {{test}}
-       <button @click="fn">test</button>
+      <h2>父组件: {{parentData}}</h2>
+      <child-component v-model="parentData"></child-component>
     </div>
 
     <script
@@ -80,6 +78,9 @@
           // this.fn()
         },
       }).$mount("#app");
+
+
+      
     </script>
   </body>
 </html>
