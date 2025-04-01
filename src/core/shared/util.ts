@@ -191,3 +191,10 @@ function nativeBind(fn: Function, ctx: Object): Function {
 
 // @ts-expect-error bind cannot be `undefined`
 export const bind = Function.prototype.bind ? nativeBind : noop;
+
+/**
+ * 將字串大寫
+ */
+export const capitalize = cached((str: string): string => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+});

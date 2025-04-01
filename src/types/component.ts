@@ -22,7 +22,7 @@ export declare class Component {
   // assets
   static directive: GlobalAPI["directive"];
   static component: GlobalAPI["component"];
-  // static filter: GlobalAPI["filter"];
+  static filter: GlobalAPI["filter"];
   //functional context constructor
   static FunctionalRenderContext: Function;
   static mixin: GlobalAPI["mixin"];

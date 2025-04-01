@@ -1,4 +1,5 @@
 import { Component } from "../../types/component.js";
+import { resolveAsset } from "../../types/options.js";
 import { VNodeData } from "../../types/vnode.js";
 import config from "../config.js";
 import { traverse } from "../observer/traverse.js";
@@ -10,6 +11,7 @@ import {
   isPrimitive,
   isTrue,
 } from "../util/index.js";
+import { createComponent } from "./create-component.js";
 import {
   normalizeChildren,
   simpleNormalizeChildren,
@@ -71,7 +73,7 @@ export function _createElement(
     children = simpleNormalizeChildren(children);
   }
 
-  let vnode, ns;
+  let vnode: any, ns;
   if (typeof tag === "string") {
     let Ctor;
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag);
@@ -85,6 +87,14 @@ export function _createElement(
         undefined,
         context
       );
+    } else if (
+      (!data || !data.pre) &&
+      isDef((Ctor = resolveAsset(context.$options, "components", tag)))
+    ) {
+      // component 處理
+      vnode = createComponent(Ctor, data, context, children, tag);
+    } else {
+      vnode = new VNode(tag, data, children, undefined, undefined, context);
     }
   }
 

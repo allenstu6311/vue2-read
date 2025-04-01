@@ -1,6 +1,7 @@
 import { DebuggerEvent } from "./../v3/debug.js";
 import VNode from "../core/vdom/vnode.js";
 import { Component } from "./component.js";
+import { camelize, capitalize, hasOwn } from "../core/shared/util.js";
 
 /**
  * @internal
@@ -101,3 +102,25 @@ export type PropOptions = {
   required?: boolean | null;
   validator?: Function | null;
 };
+
+export function resolveAsset(
+  options: Record<string, any>,
+  type: string,
+  id: string,
+  warnMissing?: boolean
+): any {
+  /* istanbul ignore if */
+  if (typeof id !== "string") {
+    return;
+  }
+  const assets = options[type];
+  // check local registration variations first
+  if (hasOwn(assets, id)) return assets[id];
+  const camelizedId = camelize(id);
+  if (hasOwn(assets, camelizedId)) return assets[camelizedId];
+  const PascalCaseId = capitalize(camelizedId);
+  if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId];
+  // fallback to prototype chain
+  const res = assets[id] || assets[camelizedId] || assets[PascalCaseId];
+  return res;
+}

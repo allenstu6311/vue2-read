@@ -2,10 +2,9 @@ import { ASSET_TYPES } from "./../shared/constants.js";
 import { GlobalAPI } from "../../types/global-api.js";
 import config from "../config.js";
 import keepAlive from "../components/keep-alive.js";
+import { initExtend } from "./extend.js";
 
 export function initGlobalAPI(Vue: GlobalAPI) {
-
-  
   // config
   const configDef: Record<string, any> = {};
   configDef.get = () => config;
@@ -16,8 +15,11 @@ export function initGlobalAPI(Vue: GlobalAPI) {
   Object.defineProperty(Vue, "config", configDef);
 
   Vue.options = Object.create(null);
+  Vue.options._base = Vue;
   // 初始化component filter directive
   ASSET_TYPES.forEach((type) => {
     Vue.options[type + "s"] = Object.create(null);
   });
+
+  initExtend(Vue);
 }

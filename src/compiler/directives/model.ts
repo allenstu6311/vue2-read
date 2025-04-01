@@ -1,3 +1,25 @@
+import { ASTElement, ASTModifiers } from "../../types/compiler.js";
+
+/**
+ * 生成子層v-model
+ */
+export function genComponentModel(
+  el: ASTElement,
+  value: string,
+  modifiers: ASTModifiers | null
+): void {
+  const { number, trim } = modifiers || {};
+  const baseValueExpression = "$$v";
+  let valueExpression = baseValueExpression;
+
+  const assignment = genAssignmentCode(value, valueExpression);
+  el.model = {
+    value: `(${value})`,
+    expression: JSON.stringify(value),
+    callback: `function (${baseValueExpression}) {${assignment}}`,
+  };
+}
+
 /**
  *
  * @param value v-model key

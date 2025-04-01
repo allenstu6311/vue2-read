@@ -131,7 +131,7 @@ export function createPatchFunction(backend: any) {
    * updateDirective
    */
   function invokeCreateHooks(vnode, insertedVnodeQueue) {
-    for (let i = 0; i < cbs.create.length; i++) {      
+    for (let i = 0; i < cbs.create.length; i++) {
       cbs.create[i](emptyNode, vnode);
     }
     // i = vnode.data.hook // 重複使用變數
@@ -154,7 +154,7 @@ export function createPatchFunction(backend: any) {
     }
 
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
-      return
+      return;
     }
 
     const data = vnode.data;
@@ -176,20 +176,23 @@ export function createPatchFunction(backend: any) {
         invokeCreateHooks(vnode, insertedVnodeQueue);
       }
 
-      
       insert(parentElm, vnode.elm, refElm);
     } else {
-
       vnode.elm = nodeOps.createTextNode(vnode.text);
       insert(parentElm, vnode.elm, refElm);
     }
   }
 
   function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
-    //createComponent
     let i = vnode.data;
-    if (isDef(i)) {       
+    if (isDef(i)) {
+      // if()
     }
+    // console.log("vnode", vnode);
+
+    // if (isDef(vnode.componentInstance)) {
+    //   console.log("2");
+    // }
   }
 
   /**
@@ -372,9 +375,7 @@ export function createPatchFunction(backend: any) {
         // 更新尾部index
         oldEndVnode = oldCh[--oldEndIdx];
         newEndVnode = newCh[--newEndIdx];
-
-      }
-      else if (sameVnode(oldStartVnode, newEndVnode)) {
+      } else if (sameVnode(oldStartVnode, newEndVnode)) {
         //DOM可能只是受到移位，避免直接創造新節點，增加舊節點得重用性(oldStart vs newEnd)
         // console.log("3");
 
@@ -527,7 +528,7 @@ export function createPatchFunction(backend: any) {
     endIdx,
     insertedVnodeQueue
   ) {
-    for (; startIdx <= endIdx; ++startIdx) {      
+    for (; startIdx <= endIdx; ++startIdx) {
       createElm(
         vnodes[startIdx],
         insertedVnodeQueue,

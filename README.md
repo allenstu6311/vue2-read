@@ -1,6 +1,6 @@
 #執行 tsc -w 即可，使用根目錄的 index.html
 
-觀察 createComponent
+觀察 create-component > installComponentHooks
 
 git reset --hard HEAD
 

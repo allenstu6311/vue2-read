@@ -40,8 +40,8 @@ export class CodegenState {
     this.warn = options.warn || baseWarn;
     this.transforms = pluckModuleFunction(options.modules, "transformCode");
     this.dataGenFns = pluckModuleFunction(options.modules, "genData"); //class生成函數
-    this.directives = extend(extend({}, baseDirective), options.directives);//合併 [(on bind), model]
-    
+    this.directives = extend(extend({}, baseDirective), options.directives); //合併 [(on bind), model]
+
     const isReservedTag = options.isReservedTag || no;
     this.maybeComponent = (el: ASTElement) =>
       !!el.component || !isReservedTag(el.tag);
@@ -103,7 +103,7 @@ export function genElement(el: ASTElement, state: CodegenState): string {
     code = `_c(${tag}${data ? `,${data}` : ""}${
       children ? `,${children}` : ""
     })`;
-      
+
     for (let i = 0; i < state.transforms.length; i++) {
       code = state.transforms[i](el, code);
     }
@@ -163,6 +163,11 @@ export function genData(el: ASTElement, state: CodegenState): string {
   // event handlers
   if (el.events) {
     data += `${genHandlers(el.events, false)},`;
+  }
+
+  // component v-model
+  if (el.model) {
+    data += `model:{value:${el.model.value},callback:${el.model.callback},expression:${el.model.expression}},`;
   }
 
   data = data.replace(/,$/, "") + "}";
@@ -320,7 +325,6 @@ function genDirectives(el: ASTElement, state: CodegenState): string | void {
         ? `,modifiers: ${JSON.stringify(dir.modifiers)}`
         : "";
 
- 
       res += `{${name}${rawName}${value}${arg}${modifiers}},`;
 
       //directives:[{name:"model",rawName:"v-model",value:(test),expression:"test"},

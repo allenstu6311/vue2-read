@@ -12,7 +12,6 @@ import { ASSET_TYPES, LIFECYCLE_HOOKS } from "../shared/constants.js";
  */
 const strats = config.optionMergeStrategies;
 
-
 strats.el = strats.propsData = function (
   parent: any,
   child: any,
@@ -36,11 +35,10 @@ function mergeData(
   to: Record<string | symbol, any>,
   from: Record<string | symbol, any> | null,
   recursive = true
-): Record<PropertyKey, any> {  
+): Record<PropertyKey, any> {
   if (!from) return to;
   let key, toVal, fromVal;
 
-  
   const keys = hasSymbol
     ? (Reflect.ownKeys(from) as string[])
     : Object.keys(from);
@@ -230,21 +228,21 @@ LIFECYCLE_HOOKS.forEach((hook) => {
 strats.props =
   strats.methods =
   strats.computed =
-  function (
-    parentVal: Object | null | any,
-    childVal: Object | null,
-    vm: Component | null,
-    key: string
-  ): Object | null {
-    if (childVal) {
-      assertObjectType(key, childVal, vm);
-      if (!parentVal) return childVal;
-    }
-    const ret = Object.create(parentVal || null);
-    extend(ret, parentVal);
-    if (childVal) extend(ret, childVal);
-    return ret;
-  };
+    function (
+      parentVal: Object | null | any,
+      childVal: Object | null,
+      vm: Component | null,
+      key: string
+    ): Object | null {
+      if (childVal) {
+        assertObjectType(key, childVal, vm);
+        if (!parentVal) return childVal;
+      }
+      const ret = Object.create(parentVal || null);
+      extend(ret, parentVal);
+      if (childVal) extend(ret, childVal);
+      return ret;
+    };
 
 /**
  * 確保所有 props 選項語法都標準化為物件格式
@@ -309,7 +307,7 @@ function assertObjectType(name: string, value: any, vm: Component | null) {
 export function mergeOptions(
   parent: Record<string, any>,
   child: Record<string, any>, // options
-  vm: any
+  vm?: any
 ): ComponentOptions {
   if (isFunction(child)) {
     // @ts-expect-error
