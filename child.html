@@ -25,8 +25,8 @@
         name: "ChildComponent",
         props: ["value"],
         template: `
-        <div style="border: 1px solid #ccc; padding: 10px; margin-top: 10px;">
-          <h3  class="test">子组件</h3>
+        <div  class="test" style="border: 1px solid #ccc; padding: 10px; margin-top: 10px;">
+          <h3>子组件</h3>
           <p>从父组件接收: {{ value }}</p>
           <p>子数据: {{ childData }}</p>
           <button @click="test">更新父组件</button>

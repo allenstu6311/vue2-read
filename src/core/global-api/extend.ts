@@ -18,8 +18,6 @@ export function initExtend(Vue: GlobalAPI) {
    * Class inheritance
    */
   Vue.extend = function (extendOptions: any): typeof Component {
-    console.log("this", this);
-
     extendOptions = extendOptions || {};
     const Super = this as any;
     const SuperId = Super.cid;
@@ -76,6 +74,7 @@ export function initExtend(Vue: GlobalAPI) {
 
     // cache constructor
     cachedCtors[SuperId] = Sub;
+
     return Sub;
   };
 }

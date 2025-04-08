@@ -1,7 +1,12 @@
 // @ts-nocheck
 import { Component } from "../../types/component.js";
 import { popTarget, pushTarget } from "../observer/dep.js";
-import { observe, set } from "../observer/index.js";
+import {
+  defineReactive,
+  observe,
+  set,
+  toggleObserving,
+} from "../observer/index.js";
 import {
   hasOwn,
   isArray,
@@ -12,6 +17,8 @@ import {
 import { isResvered } from "../util/lang.js";
 import { bind } from "../shared/util.js";
 import Watcher from "../observer/watcher.js";
+import { shallowReactive } from "../../v3/reactivity/reactive.js";
+import { validateProp } from "../util/props.js";
 
 /**
  * 共享屬性描述
@@ -31,6 +38,11 @@ const sharedPropertyDefinition = {
  */
 export function proxy(target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter() {
+    // console.log("this", this);
+
+    // console.log("key", key, "sourceKey", sourceKey);
+    // console.log("proxy", this[sourceKey]);
+
     return this[sourceKey][key];
   };
   sharedPropertyDefinition.set = function proxySetter(val) {
@@ -46,6 +58,8 @@ export function proxy(target: Object, sourceKey: string, key: string) {
 export function initState(vm: Component) {
   const opts = vm.$options;
 
+  if (opts.props) initProps(vm, opts.props);
+
   if (opts.methods) iniMethods(vm, opts.methods);
   if (opts.data) {
     initData(vm);
@@ -53,6 +67,28 @@ export function initState(vm: Component) {
   if (opts.computed) initComputed(vm, opts.computed);
   if (opts.watch) {
     initWatch(vm, opts.watch);
+  }
+}
+
+function initProps(vm: Component, propsOptions: Object) {
+  const propsData = vm.$options.propsData || {};
+  const props = (vm._props = shallowReactive({}));
+
+  const keys: string[] = (vm.$options._propKeys = []);
+  const isRoot = !vm.$parent;
+  if (!isRoot) {
+  }
+  for (const key in propsOptions) {
+    keys.push(key);
+    const value = validateProp(key, propsOptions, propsData, vm);
+
+    defineReactive(props, key, value, undefined, true /* shallow */);
+
+    if (!(key in vm)) {
+      proxy(vm, `_props`, key);
+    }
+
+    toggleObserving(true);
   }
 }
 
@@ -84,7 +120,7 @@ function initData(vm: Component) {
       proxy(vm, `_data`, key);
     }
   }
-  
+
   const ob = observe(data);
   ob && ob.vmCount++;
 }
@@ -175,7 +211,7 @@ function createWatcher(
 
   // if (typeof handler === "string") {
   //   handler = vm[handler];
-  // }  
+  // }
   return vm.$watch(expOrFn, handler, options);
 }
 

@@ -23,7 +23,7 @@ export function initMixin(Vue: any) {
     vm._scope.parent = undefined;
 
     if (options && options._isComponent) {
-      //使用component的時候才會觸發暫時不處理
+      initInternalComponent(vm, options as any);
     } else {
       //合併options中所有欄位(data,computed,watch....)
       vm.$options = mergeOptions(
@@ -31,7 +31,6 @@ export function initMixin(Vue: any) {
         options,
         vm
       );
-      // console.log('vm.$options',vm.$options);
     }
 
     vm._renderProxy = vm; // 之後考慮用proxy
@@ -48,6 +47,27 @@ export function initMixin(Vue: any) {
 
 export function resolveConstructorOptions(Ctor: Component) {
   let options = Ctor.options;
-
   return options;
+}
+
+export function initInternalComponent(
+  vm: Component,
+  options: InternalComponentOptions
+) {
+  const opts = (vm.$options = Object.create((vm.constructor as any).options));
+  // doing this because it's faster than dynamic enumeration.
+  const parentVnode = options._parentVnode;
+  opts.parent = options.parent;
+  opts._parentVnode = parentVnode;
+
+  const vnodeComponentOptions = parentVnode.componentOptions!;
+  opts.propsData = vnodeComponentOptions.propsData;
+  opts._parentListeners = vnodeComponentOptions.listeners;
+  opts._renderChildren = vnodeComponentOptions.children;
+  opts._componentTag = vnodeComponentOptions.tag;
+
+  if (options.render) {
+    opts.render = options.render;
+    opts.staticRenderFns = options.staticRenderFns;
+  }
 }

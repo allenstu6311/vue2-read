@@ -25,6 +25,10 @@ const NO_INITIAL_VALUE = {};
  */
 export let shouldObserve: boolean = true;
 
+export function toggleObserving(value: boolean) {
+  shouldObserve = value;
+}
+
 // ssr mock dep
 const mockDep = {
   notify: noop,
@@ -141,7 +145,7 @@ export function defineReactive(
 
   // 子層觀察者
   let childOb: any;
-  if (shallow) {    
+  if (shallow) {
     childOb = val && val.__ob__;
   } else {
     // console.log('val',val);
@@ -153,7 +157,7 @@ export function defineReactive(
     configurable: true,
     get: function reactiveGetter() {
       const value = getter ? getter.call(obj) : val;
-      
+
       if (Dep.target) {
         dep.depend();
       }

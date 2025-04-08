@@ -198,3 +198,11 @@ export const bind = Function.prototype.bind ? nativeBind : noop;
 export const capitalize = cached((str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 });
+
+/**
+ * myComponentName => my-component-name
+ */
+const hyphenateRE = /\B([A-Z])/g;
+export const hyphenate = cached((str: string): string => {
+  return str.replace(hyphenateRE, "-$1").toLowerCase();
+});

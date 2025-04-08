@@ -3,6 +3,14 @@ import VNode from "../core/vdom/vnode.js";
 import { Component } from "./component.js";
 import { camelize, capitalize, hasOwn } from "../core/shared/util.js";
 
+export type InternalComponentOptions = {
+  _isComponent: true;
+  parent: Component;
+  _parentVnode: VNode;
+  render?: Function;
+  staticRenderFns?: Array<Function>;
+};
+
 /**
  * @internal
  */

@@ -16,6 +16,7 @@ export let activeInstance: any = null;
  */
 export function initLifecycle(vm: Component) {
   const options = vm.$options;
+
   let parent = options.parent;
   // 如果有父组件且当前组件不是抽象组件
   if (parent && !options.abstract) {
@@ -59,7 +60,7 @@ export function mountComponent(
    * 將VNode渲染真實DOM的關鍵方法
    */
   let updateComponent;
-  updateComponent = () => {    
+  updateComponent = () => {
     vm._update(vm._render(), hydrating);
   };
 

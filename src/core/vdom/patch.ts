@@ -186,13 +186,41 @@ export function createPatchFunction(backend: any) {
   function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data;
     if (isDef(i)) {
-      // if()
+      const isReactivated = isDef(vnode.componentInstance) && i.keepAlive;
+      if (isDef((i = i.hook)) && isDef((i = i.init))) {
+        // 創建子層
+        i(vnode, false /* hydrating */);
+      }
     }
-    // console.log("vnode", vnode);
 
-    // if (isDef(vnode.componentInstance)) {
-    //   console.log("2");
-    // }
+    if (isDef(vnode.componentInstance)) {
+      initComponent(vnode, insertedVnodeQueue);
+      insert(parentElm, vnode.elm, refElm);
+      return true;
+    }
+  }
+
+  function initComponent(vnode, insertedVnodeQueue) {
+    if (isDef(vnode.data.pendingInsert)) {
+      insertedVnodeQueue.push.apply(
+        insertedVnodeQueue,
+        vnode.data.pendingInsert
+      );
+      vnode.data.pendingInsert = null;
+    }
+
+    vnode.elm = vnode.componentInstance.$el;
+
+    if (isPatchable(vnode)) {
+      invokeCreateHooks(vnode, insertedVnodeQueue);
+      setScope(vnode);
+    } else {
+      // empty component root.
+      // skip all element-related modules except for ref (#3455)
+      // registerRef(vnode)
+      // make sure to invoke the insert hook
+      insertedVnodeQueue.push(vnode);
+    }
   }
 
   /**
@@ -304,6 +332,9 @@ export function createPatchFunction(backend: any) {
    * 目前用於檢查vnode是否有標籤
    */
   function isPatchable(vnode) {
+    while (vnode.componentInstance) {
+      vnode = vnode.componentInstance._vnode;
+    }
     return isDef(vnode.tag);
   }
 
@@ -335,11 +366,6 @@ export function createPatchFunction(backend: any) {
       refElm; //相鄰的節點
 
     const canmove = !removeOnly;
-
-    // console.log("parentElm", parentElm);
-    // console.log("oldEndIdx", oldEndIdx);
-    // console.log("oldStartVnode", oldStartVnode);
-    // console.log("newStartVnode", newStartVnode);
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
@@ -560,8 +586,6 @@ export function createPatchFunction(backend: any) {
    * oldVonde #app
    */
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
-    // console.log("oldVnode", oldVnode);
-    // console.log("vnode", vnode);
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode);
       return;
@@ -571,6 +595,9 @@ export function createPatchFunction(backend: any) {
     const insertedVnodeQueue: any[] = []; // 插入vnode對列
 
     if (isUndef(oldVnode)) {
+      // 如果沒有就oldVNode，基本上就是在執行元件得渲染
+      isInitialPatch = true;
+      createElm(vnode, insertedVnodeQueue);
     } else {
       // 虛擬DOM不會有NodeType所以用來判斷是否為虛擬DOM更新
       const isRealElement = isDef(oldVnode.nodeType);
