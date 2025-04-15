@@ -185,10 +185,11 @@ export function createPatchFunction(backend: any) {
 
   function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data;
+
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive;
       if (isDef((i = i.hook)) && isDef((i = i.init))) {
-        // 創建子層
+        // 創建子層 Sub > VueComponent > init
         i(vnode, false /* hydrating */);
       }
     }

@@ -31,7 +31,7 @@ export function initExtend(Vue: GlobalAPI) {
       getComponentName(extendOptions) || getComponentName(Super.options);
 
     const Sub = function VueComponent(this: any, options: any) {
-      this._init(options);
+      this._init(options); // componentVNodeHooks init
     } as unknown as typeof Component;
 
     Sub.prototype = Object.create(Super.prototype);

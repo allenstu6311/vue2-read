@@ -138,7 +138,8 @@ function transformModel(options: any, data: any) {
 }
 
 function installComponentHooks(data: VNodeData) {
-  const hooks = data.hook || (data.hook = {});
+  const hooks = data.hook || (data.hook = {}); // componentVNodeHooks methods
+
   for (let i = 0; i < hooksToMerge.length; i++) {
     const key = hooksToMerge[i];
     const existing = hooks[key];
@@ -150,7 +151,11 @@ function installComponentHooks(data: VNodeData) {
     }
   }
 }
-
+/**
+ * 將 Vue 內建的 componentVNodeHooks（如 init、insert、destroy 等）安裝到 VNode 的 data.hook 中。
+ * 若使用者已在 data.hook 中手動定義了相同名稱的 lifecycle hook，則會與內建 hook 透過 mergeHook 合併，
+ * 確保 Vue 的元件初始化與銷毀流程不被覆蓋，且使用者自定義邏輯仍能正常執行。
+ */
 function mergeHook(f1: any, f2: any): Function {
   const merged = (a: any, b: any) => {
     // flow complains about extra args which is why we use any

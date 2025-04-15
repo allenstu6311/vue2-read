@@ -62,7 +62,7 @@ export function initInternalComponent(
 
   const vnodeComponentOptions = parentVnode.componentOptions!;
   opts.propsData = vnodeComponentOptions.propsData;
-  opts._parentListeners = vnodeComponentOptions.listeners;
+  opts._parentListeners = vnodeComponentOptions.listeners; // emit事件...
   opts._renderChildren = vnodeComponentOptions.children;
   opts._componentTag = vnodeComponentOptions.tag;
 

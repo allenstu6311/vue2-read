@@ -206,3 +206,16 @@ const hyphenateRE = /\B([A-Z])/g;
 export const hyphenate = cached((str: string): string => {
   return str.replace(hyphenateRE, "-$1").toLowerCase();
 });
+
+/**
+ * Convert an Array-like object to a real Array.
+ */
+export function toArray(list: any, start?: number): Array<any> {
+  start = start || 0;
+  let i = list.length - start;
+  const ret: Array<any> = new Array(i);
+  while (i--) {
+    ret[i] = list[i + start];
+  }
+  return ret;
+}
